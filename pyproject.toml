@@ -6,6 +6,7 @@ skip-string-normalization = true
 [tool.ruff]
 line-length = 88
 target-version = "py312"
+exclude = ["04_projetos/project0/test.py",]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
