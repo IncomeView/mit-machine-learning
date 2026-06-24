@@ -57,7 +57,7 @@ def neural_network(inputs, weights):
     Returns (in this order):
       out - a 1 x 1 NumPy array, representing the output of the neural network
     """
-    z = np.dot(weights.T, inputs)
+    z = np.matmul(np.transpose(weights), inputs)
     out = np.tanh(z)
     return out
 

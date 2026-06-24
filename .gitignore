@@ -25,6 +25,7 @@ data/*
 # Models
 models/*
 !models/.gitkeep
+04_projetos/model.py
 
 # Cache
 .cache/

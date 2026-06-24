@@ -13,9 +13,9 @@ else:
 
 def load_toy_data(path_toy_data):
     """
-    Loads the 2D toy dataset as numpy arrays.
-    Returns the tuple (features, labels) in which features is an Nx2 numpy matrix and
-    labels is a length-N vector of +1/-1 labels.
+    Carrega o conjunto de dados de brinquedo 2D como arrays numpy.
+    Retorna a tupla (características, rótulos) em que características é uma matriz numpy Nx2 e
+    rótulos é um vetor de comprimento N com rótulos +1/-1.
     """
     labels, xs, ys = np.loadtxt(path_toy_data, delimiter='\t', unpack=True)
     return np.vstack((xs, ys)).T, labels
@@ -23,17 +23,17 @@ def load_toy_data(path_toy_data):
 
 def load_data(path_data, extras=False):
     """
-    Returns a list of dict with keys:
-    * sentiment: +1 or -1 if the review was positive or negative, respectively
-    * text: the text of the review
+    Retorna uma lista de dicionários com as seguintes chaves:
+        * sentiment: +1 ou -1 se a avaliação foi positiva ou negativa, respectivamente
+        * text: o texto da avaliação
 
-    Additionally, if the `extras` argument is True, each dict will also include the
-    following information:
-    * productId: a string that uniquely identifies each product
-    * userId: a string that uniquely identifies each user
-    * summary: the title of the review
-    * helpfulY: the number of users who thought this review was helpful
-    * helpfulN: the number of users who thought this review was NOT helpful
+    Além disso, se o argumento `extras` for True, cada dicionário também incluirá as
+    seguintes informações:
+        * productId: uma string que identifica exclusivamente cada produto
+        * userId: uma string que identifica exclusivamente cada usuário
+        * summary: o título da avaliação
+        * helpfulY: o número de usuários que consideraram esta avaliação útil
+        * helpfulN: o número de usuários que consideraram esta avaliação NÃO útil
     """
 
     global PYTHON3
@@ -93,12 +93,12 @@ def write_predictions(path_submit_data, preds):
 
 def plot_toy_data(algo_name, features, labels, thetas):
     """
-    Plots the toy data in 2D.
-    Arguments:
-    * features - an Nx2 ndarray of features (points)
-    * labels - a length-N vector of +1/-1 labels
-    * thetas - the tuple (theta, theta_0) that is the output of the learning algorithm
-    * algorithm - the string name of the learning algorithm used
+    Plota os dados de teste em 2D.
+    Argumentos:
+        * features - um ndarray Nx2 de características (pontos)
+        * labels - um vetor de comprimento N com rótulos +1/-1
+        * thetas - a tupla (theta, theta_0) que representa a saída do algoritmo de aprendizado
+        * algorithm - o nome do algoritmo de aprendizado utilizado (string)
     """
     # plot the points with labels represented as colors
     plt.subplots()
@@ -120,8 +120,8 @@ def plot_toy_data(algo_name, features, labels, thetas):
 
 def plot_tune_results(algo_name, param_name, param_vals, acc_train, acc_val):
     """
-    Plots classification accuracy on the training and validation data versus
-    several values of a hyperparameter used during training.
+    Gráfico da precisão da classificação nos dados de treinamento e validação versus
+    vários valores de um hiperparâmetro usado durante o treinamento.
     """
     # put the data on the plot
     plt.subplots()
@@ -135,6 +135,7 @@ def plot_tune_results(algo_name, param_name, param_vals, acc_train, acc_val):
     plt.legend(['train', 'val'], loc='upper right', title='Partition')
     plt.xlabel(param_name)
     plt.ylabel('Accuracy (%)')
+    plt.savefig(f"../images/{algo_name}_{param_name}.png")
     plt.show()
 
 
@@ -177,5 +178,5 @@ def tune_pegasos_L(best_T, *args):
 
 
 def most_explanatory_word(theta, wordlist):
-    """Returns the word associated with the bag-of-words feature having largest weight."""
+    """Retorna a palavra associada à característica do modelo de saco de palavras com maior peso."""
     return [word for (theta_i, word) in sorted(zip(theta, wordlist))[::-1]]
