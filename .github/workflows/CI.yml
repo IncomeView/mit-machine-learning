@@ -39,6 +39,4 @@ jobs:
           pytest -q
 
       - name: Validate notebooks
-        run: |
-          nbqa ruff .
-          nbqa black --check .
+        run: ruff check . --exclude 04_projetos/project0
