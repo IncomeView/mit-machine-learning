@@ -28,7 +28,7 @@ jobs:
 
       - name: Run Ruff (lint)
         run: |
-          ruff check . --exclude 04_projetos/project0
+          ruff check . --exclude 04_projetos
 
       - name: Run Black (format check)
         run: |
@@ -39,4 +39,8 @@ jobs:
           pytest -q
 
       - name: Validate notebooks
-        run: ruff check . --exclude 04_projetos/project0
+        run: ruff check . --exclude 04_projetos
+
+      - name: Run Black (format check)
+        run: |
+          black --check . --exclude 04_projetos
