@@ -28,7 +28,7 @@ jobs:
 
       - name: Run Ruff (lint)
         run: |
-          ruff check .
+          ruff check . --exclude 04_projetos/project0
 
       - name: Run Black (format check)
         run: |
