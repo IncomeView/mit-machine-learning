@@ -7,30 +7,38 @@ from sklearn.svm import LinearSVC
 
 def one_vs_rest_svm(train_x, train_y, test_x):
     """
-    Trains a linear SVM for binary classifciation
+    Treina uma SVM linear para classificação binária
 
-    Args:
-        train_x - (n, d) NumPy array (n datapoints each with d features)
-        train_y - (n, ) NumPy array containing the labels (0 or 1) for each training data point
-        test_x - (m, d) NumPy array (m datapoints each with d features)
-    Returns:
-        pred_test_y - (m,) NumPy array containing the labels (0 or 1) for each test data point
+    Argumentos:
+        train_x - features (imagens achatadas) | (n, d) Array NumPy de formato (n pontos de dados, cada um com d características)
+        train_y - (n,) Array NumPy de formato, contendo os rótulos (0 ou 1) para cada ponto de dados de treinamento, já preparados em run_svm_one_vs_rest_on_MNIST
+        test_x - (m, d) Array NumPy de formato (m pontos de dados, cada um com d características)
+    Retorno:
+        pred_test_y - (m,) Array NumPy de formato, contendo os rótulos (0 ou 1) para cada ponto de dados de teste
     """
-    raise NotImplementedError
+    svc = LinearSVC(C=0.1, random_state=0)
+    svc.fit(train_x, train_y)
+    pred_test_y = svc.predict(test_x)
+
+    return pred_test_y
 
 
 def multi_class_svm(train_x, train_y, test_x):
     """
-    Trains a linear SVM for multiclass classifciation using a one-vs-rest strategy
+    Treina uma SVM linear para classificação multiclasse utilizando a estratégia *one-vs-rest*
 
-    Args:
-        train_x - (n, d) NumPy array (n datapoints each with d features)
-        train_y - (n, ) NumPy array containing the labels (int) for each training data point
-        test_x - (m, d) NumPy array (m datapoints each with d features)
-    Returns:
-        pred_test_y - (m,) NumPy array containing the labels (int) for each test data point
+    Argumentos:
+        train_x - Array NumPy de dimensões (n, d) (n pontos de dados, cada um com d características)
+        train_y - Array NumPy de dimensão (n,) contendo os rótulos (int) para cada ponto de dados de treinamento
+        test_x - Array NumPy de dimensões (m, d) (m pontos de dados, cada um com d características)
+    Retorno:
+        pred_test_y - Array NumPy de dimensão (m,) contendo os rótulos (int) para cada ponto de dados de teste
     """
-    raise NotImplementedError
+    svc = LinearSVC(C=0.1, random_state=0)
+    svc.fit(train_x, train_y)
+    pred_test_y = svc.predict(test_x)
+
+    return pred_test_y
 
 
 def compute_test_error_svm(test_y, pred_test_y):

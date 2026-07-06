@@ -10,90 +10,129 @@ import scipy.sparse as sparse
 
 def augment_feature_vector(X):
     """
-    Adds the x[i][0] = 1 feature for each data point x[i].
+    Adiciona x[i][0] = 1 feature para cada ponto de dados x[i].
 
-    Args:
-        X - a NumPy matrix of n data points, each with d - 1 features
-
-    Returns: X_augment, an (n, d) NumPy array with the added feature for each datapoint
+    Argumentos:
+        X - uma matriz NumPy de n pontos de dados, cada um com d - 1 características
+    Retorna:
+        X_augment, um array NumPy (n, d) com a característica adicionada para cada ponto de dados
     """
     column_of_ones = np.zeros([len(X), 1]) + 1
+
     return np.hstack((column_of_ones, X))
 
 
 def compute_probabilities(X, theta, temp_parameter):
     """
-    Computes, for each datapoint X[i], the probability that X[i] is labeled as j
-    for j = 0, 1, ..., k-1
+    Calcula, para cada ponto de dados X[i], a probabilidade de X[i] ser rotulado como j
+        para j = 0, 1, ..., k-1
 
-    Args:
-        X - (n, d) NumPy array (n datapoints each with d features)
-        theta - (k, d) NumPy array, where row j represents the parameters of our model for label j
-        temp_parameter - the temperature parameter of softmax function (scalar)
-    Returns:
-        H - (k, n) NumPy array, where each entry H[j][i] is the probability that X[i] is labeled as j
+    Argumentos:
+        X - (n, d) array NumPy de dimensões (n pontos de dados, cada um com d características)
+        theta - (k, d) array NumPy de dimensões, onde a linha j representa os parâmetros do nosso modelo para o rótulo j
+        temp_parameter - o parâmetro de temperatura da função softmax (escalar)
+    Retorna:
+        H - (k, n) array NumPy de dimensões, onde cada entrada H[j][i] é a probabilidade de X[i] ser rotulado como j
     """
-    # YOUR CODE HERE
-    raise NotImplementedError
+    Z = (theta @ X.T) / temp_parameter
+    c = np.max(Z, axis=0)
+    Zc = Z - c
+    exp_Zc = np.exp(Zc)
+
+    sum_exp_Zc = np.sum(exp_Zc, axis=0)
+    H = exp_Zc / sum_exp_Zc
+
+    return H
 
 
 def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     """
-    Computes the total cost over every datapoint.
+    Calcula o custo total considerando todos os pontos de dados.
 
-    Args:
-        X - (n, d) NumPy array (n datapoints each with d features)
-        Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
-            data point
-        theta - (k, d) NumPy array, where row j represents the parameters of our
-                model for label j
-        lambda_factor - the regularization constant (scalar)
-        temp_parameter - the temperature parameter of softmax function (scalar)
-
-    Returns
-        c - the cost value (scalar)
+        Argumentos:
+        X - (n, d) Array NumPy de dimensões (n pontos de dados, cada um com d características)
+        Y - (n, ) Array NumPy contendo os rótulos (um número de 0 a 9) para cada
+        ponto de dados
+        theta - (k, d) Array NumPy de dimensões, onde a linha j representa os parâmetros do nosso
+        modelo para o rótulo j
+        lambda_factor - a constante de regularização (escalar)
+        temp_parameter - o parâmetro de temperatura da função softmax (escalar)
+    Retorno:
+        c - o valor do custo (escalar)
     """
-    # YOUR CODE HERE
+    H = compute_probabilities(X, theta, temp_parameter)
+    soft = H[Y, np.arange(X.shape[0])]
+    log_likelihood = -np.log(soft)
+    mean_likelihood = np.mean(log_likelihood)
+
+    regularization = (lambda_factor / 2) * np.sum(theta**2)
+    cost = mean_likelihood + regularization
+
+    return cost
+
     raise NotImplementedError
 
 
 def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_parameter):
     """
-    Runs one step of batch gradient descent
+    Executa uma etapa do gradiente descendente em lote (batch gradient descent)
 
-    Args:
-        X - (n, d) NumPy array (n datapoints each with d features)
-        Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
-            data point
-        theta - (k, d) NumPy array, where row j represents the parameters of our
-                model for label j
-        alpha - the learning rate (scalar)
-        lambda_factor - the regularization constant (scalar)
-        temp_parameter - the temperature parameter of softmax function (scalar)
-
-    Returns:
-        theta - (k, d) NumPy array that is the final value of parameters theta
+    Argumentos:
+        X - (n, d) Array NumPy de dimensões (n pontos de dados, cada um com d atributos)
+        Y - (n, ) Array NumPy contendo os rótulos (um número de 0 a 9) para cada
+        ponto de dados
+        theta - (k, d) Array NumPy de dimensões, onde a linha j representa os parâmetros do nosso
+        modelo para o rótulo j
+        alpha - a taxa de aprendizado (escalar)
+        lambda_factor - a constante de regularização (escalar)
+        temp_parameter - o parâmetro de temperatura da função softmax (escalar)
+    Retorna:
+        theta - Array NumPy de dimensões (k, d) contendo o valor final dos parâmetros theta
     """
-    # YOUR CODE HERE
-    raise NotImplementedError
+    n = X.shape[0]  # Número de pontos de dados
+    k = theta.shape[0]  # Número de classes
+
+    # Softmax (k x n) | Probabilidades de cada classe para cada ponto de dados
+    H = compute_probabilities(X, theta, temp_parameter)
+
+    # Matriz indicador (k x n) | sparse
+    # onde -> M[j, i] = 1 se Y[i] == j
+    M = sparse.coo_matrix(([1] * n, (Y, range(n))), shape=(k, n)).toarray()
+
+    # Erro (k x n) | Diferença entre a matriz de probabilidades e a matriz indicadora
+    diff = M - H
+
+    # Gradiente da parte de dados
+    # diff (k x n) @ X (n x d) = grad_matrix (k x d)
+    grad_P = -(1 / (n * temp_parameter)) * (diff @ X)
+
+    # Regularização
+    grad_reg = lambda_factor * theta
+
+    # Gradiente total
+    gradient = grad_P + grad_reg
+
+    # Atualização de theta
+    theta = theta - alpha * gradient
+
+    return theta
 
 
 def update_y(train_y, test_y):
     """
-    Changes the old digit labels for the training and test set for the new (mod 3)
-    labels.
+    Altera os rótulos originais dos dígitos dos conjuntos de treino e teste para os novos rótulos (mod 3).
 
-    Args:
-        train_y - (n, ) NumPy array containing the labels (a number between 0-9)
-                 for each datapoint in the training set
-        test_y - (n, ) NumPy array containing the labels (a number between 0-9)
-                for each datapoint in the test set
+    Argumentos:
+        train_y - (n, ) Array NumPy de formato contendo os rótulos (um número entre 0 e 9)
+        para cada ponto de dados no conjunto de treino
+        test_y - (n, ) Array NumPy de formato contendo os rótulos (um número entre 0 e 9)
+        para cada ponto de dados no conjunto de teste
 
-    Returns:
-        train_y_mod3 - (n, ) NumPy array containing the new labels (a number between 0-2)
-                     for each datapoint in the training set
-        test_y_mod3 - (n, ) NumPy array containing the new labels (a number between 0-2)
-                    for each datapoint in the test set
+    Retornos:
+        train_y_mod3 - (n, ) Array NumPy de formato, contendo os novos rótulos (um número entre 0 e 2)
+        para cada ponto de dados no conjunto de treino
+        test_y_mod3 - (n, ) Array NumPy de formato, contendo os novos rótulos (um número entre 0 e 2)
+        para cada ponto de dados no conjunto de teste
     """
     # YOUR CODE HERE
     raise NotImplementedError
@@ -101,18 +140,17 @@ def update_y(train_y, test_y):
 
 def compute_test_error_mod3(X, Y, theta, temp_parameter):
     """
-    Returns the error of these new labels when the classifier predicts the digit. (mod 3)
+    Retorna o erro associado a esses novos rótulos quando o classificador prevê o dígito (módulo 3).
 
-    Args:
-        X - (n, d - 1) NumPy array (n datapoints each with d - 1 features)
-        Y - (n, ) NumPy array containing the labels (a number from 0-2) for each
-            data point
-        theta - (k, d) NumPy array, where row j represents the parameters of our
-                model for label j
-        temp_parameter - the temperature parameter of softmax function (scalar)
-
-    Returns:
-        test_error - the error rate of the classifier (scalar)
+    Argumentos:
+        X - (n, d - 1) Array NumPy de dimensão (n pontos de dados, cada um com d - 1 atributos)
+        Y - (n, ) Array NumPy de dimensão (n, ) contendo os rótulos (um número de 0 a 2) para cada
+        ponto de dados
+        theta - (k, d) Array NumPy de dimensão (k, d), onde a linha j representa os parâmetros do nosso
+        modelo para o rótulo j
+        temp_parameter - o parâmetro de temperatura da função softmax (escalar)
+    Retorno:
+        test_error - a taxa de erro do classificador (escalar)
     """
     # YOUR CODE HERE
     raise NotImplementedError
@@ -120,24 +158,23 @@ def compute_test_error_mod3(X, Y, theta, temp_parameter):
 
 def softmax_regression(X, Y, temp_parameter, alpha, lambda_factor, k, num_iterations):
     """
-    Runs batch gradient descent for a specified number of iterations on a dataset
-    with theta initialized to the all-zeros array. Here, theta is a k by d NumPy array
-    where row j represents the parameters of our model for label j for
-    j = 0, 1, ..., k-1
+    Executa o gradiente descendente em lote (*batch gradient descent*) por um número especificado de iterações em um conjunto de dados,
+    com theta inicializado como um array de zeros. Aqui, theta é um array NumPy de dimensões k por d,
+    no qual a linha j representa os parâmetros do nosso modelo para o rótulo j,
+    para j = 0, 1, ..., k-1.
 
-    Args:
-        X - (n, d - 1) NumPy array (n data points, each with d-1 features)
-        Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
-            data point
-        temp_parameter - the temperature parameter of softmax function (scalar)
-        alpha - the learning rate (scalar)
-        lambda_factor - the regularization constant (scalar)
-        k - the number of labels (scalar)
-        num_iterations - the number of iterations to run gradient descent (scalar)
-
-    Returns:
-        theta - (k, d) NumPy array that is the final value of parameters theta
-        cost_function_progression - a Python list containing the cost calculated at each step of gradient descent
+    Argumentos:
+        X - (n, d - 1) array NumPy de dimensões (n pontos de dados, cada um com d-1 atributos)
+        Y - (n, ) array NumPy de dimensão, contendo os rótulos (um número de 0 a 9) para cada
+        ponto de dados
+        temp_parameter - o parâmetro de temperatura da função softmax (escalar)
+        alpha - a taxa de aprendizado (escalar)
+        lambda_factor - a constante de regularização (escalar)
+        k - o número de rótulos (escalar)
+        num_iterations - o número de iterações para executar o gradiente descendente (escalar)
+    Retornos:
+        theta - (k, d) array NumPy de dimensões, contendo o valor final dos parâmetros theta
+        cost_function_progression - uma lista Python contendo o custo calculado em cada etapa do gradiente descendente
     """
     X = augment_feature_vector(X)
     theta = np.zeros([k, X.shape[1]])
@@ -154,17 +191,16 @@ def softmax_regression(X, Y, temp_parameter, alpha, lambda_factor, k, num_iterat
 
 def get_classification(X, theta, temp_parameter):
     """
-    Makes predictions by classifying a given dataset
+    Realiza previsões classificando um determinado conjunto de dados
 
-    Args:
-        X - (n, d - 1) NumPy array (n data points, each with d - 1 features)
-        theta - (k, d) NumPy array where row j represents the parameters of our model for
-                label j
-        temp_parameter - the temperature parameter of softmax function (scalar)
-
-    Returns:
-        Y - (n, ) NumPy array, containing the predicted label (a number between 0-9) for
-            each data point
+    Argumentos:
+        X - Array NumPy de dimensões (n, d - 1) (n pontos de dados, cada um com d - 1 atributos)
+        theta - Array NumPy de dimensões (k, d), onde a linha j representa os parâmetros do nosso modelo para
+        o rótulo j
+        temp_parameter - o parâmetro de temperatura da função softmax (escalar)
+    Retorno:
+        Y - Array NumPy de dimensão (n, ), contendo o rótulo previsto (um número entre 0 e 9) para
+        cada ponto de dados
     """
     X = augment_feature_vector(X)
     probabilities = compute_probabilities(X, theta, temp_parameter)

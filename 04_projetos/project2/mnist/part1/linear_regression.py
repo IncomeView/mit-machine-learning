@@ -5,22 +5,31 @@ import numpy as np
 
 def closed_form(X, Y, lambda_factor):
     """
-    Computes the closed form solution of linear regression with L2 regularization
+    Calcula a solução de forma fechada para regressão linear com regularização L2
 
-    Args:
-        X - (n, d + 1) NumPy array (n datapoints each with d features plus the bias feature in the first dimension)
-        Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
-            data point
-        lambda_factor - the regularization constant (scalar)
-    Returns:
-        theta - (d + 1, ) NumPy array containing the weights of linear regression. Note that theta[0]
-        represents the y-axis intercept of the model and therefore X[0] = 1
+    Argumentos:
+    X - (n, d + 1) Array NumPy de dimensões (n pontos de dados, cada um com d atributos mais o atributo de viés na primeira dimensão)
+    Y - (n, ) Array NumPy contendo os rótulos (um número de 0 a 9) para cada
+    ponto de dados
+    lambda_factor - a constante de regularização (escalar)
+    Retorna:
+    theta - (d + 1, ) Array NumPy contendo os pesos da regressão linear. Note que theta[0]
+    representa a interceptação no eixo y do modelo e, portanto, X[0] = 1
+
+        Regressão Linear Ridge: Regularização L2 - Solução Fechada
     """
-    # YOUR CODE HERE
-    raise NotImplementedError
+    d = X.shape[1]
+    I = np.eye(d)
+    #    I[0,0] = 0
+
+    A = X.T @ X + lambda_factor * I
+    b = X.T @ Y
+
+    theta = np.linalg.solve(A, b)
+    return theta
 
 
-### Functions which are already complete, for you to use ###
+### Funções já prontas para você usar ###
 
 
 def compute_test_error_linear(test_x, Y, theta):
