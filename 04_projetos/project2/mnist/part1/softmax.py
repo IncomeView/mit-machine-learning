@@ -134,8 +134,8 @@ def update_y(train_y, test_y):
         test_y_mod3 - (n, ) Array NumPy de formato, contendo os novos rótulos (um número entre 0 e 2)
         para cada ponto de dados no conjunto de teste
     """
-    # YOUR CODE HERE
-    raise NotImplementedError
+
+    return train_y % 3, test_y % 3
 
 
 def compute_test_error_mod3(X, Y, theta, temp_parameter):
@@ -152,8 +152,14 @@ def compute_test_error_mod3(X, Y, theta, temp_parameter):
     Retorno:
         test_error - a taxa de erro do classificador (escalar)
     """
-    # YOUR CODE HERE
-    raise NotImplementedError
+    # Classificação normal (0 - 9)
+    lables = get_classification(X, theta, temp_parameter)
+    # Converter previsões para mod 3
+    lables_mod3 = lables % 3
+    # Comparar com os rótulos corretos (já em mod 3)
+    test_erro = 1 - np.mean(lables_mod3 == Y)
+
+    return test_erro
 
 
 def softmax_regression(X, Y, temp_parameter, alpha, lambda_factor, k, num_iterations):

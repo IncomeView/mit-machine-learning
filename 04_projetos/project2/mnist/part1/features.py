@@ -4,19 +4,30 @@ import matplotlib.pyplot as plt
 
 def project_onto_PC(X, pcs, n_components, feature_means):
     """
-    Given principal component vectors pcs = principal_components(X)
-    this function returns a new data array in which each sample in X
-    has been projected onto the first n_components principcal components.
+    Dados os vetores de componentes principais `pcs = principal_components(X)`,
+    esta função retorna um novo array de dados no qual cada amostra de X
+    foi projetada nos primeiros `n_components` componentes principais.
     """
-    # TODO: first center data using the feature_means
-    # TODO: Return the projection of the centered dataset
-    #       on the first n_components principal components.
-    #       This should be an array with dimensions: n x n_components.
-    # Hint: these principal components = first n_components columns
-    #       of the eigenvectors returned by principal_components().
-    #       Note that each eigenvector is already be a unit-vector,
-    #       so the projection may be done using matrix multiplication.
-    raise NotImplementedError
+    # TODO: primeiro, centralize os dados usando as médias das características (feature_means)
+    # TODO: Retorne a projeção do conjunto de dados centralizado
+    #       nos primeiros `n_components` componentes principais.
+    #       O resultado deve ser um array com dimensões: n x n_components.
+    # Dica: esses componentes principais correspondem às primeiras `n_components` colunas
+    #       dos autovetores retornados por `principal_components()`.
+    #       Observe que cada autovetor já é um vetor unitário,
+    #       portanto, a projeção pode ser realizada utilizando multiplicação de matrizes.
+
+    # Centralizar X nos primeiros n_components componentes principais
+    X_centered = X - feature_means
+
+    # Selecionar os primeiros n_components autovetores (componentes principais)
+    # pcs tem shape (d, d), Regamos as primeiras colunas
+    V = pcs[:, :n_components]
+
+    # Projeção: X_centered * V
+    X_pca = np.dot(X_centered, V)
+
+    return X_pca
 
 
 ### Functions which are already complete, for you to use ###
@@ -24,8 +35,8 @@ def project_onto_PC(X, pcs, n_components, feature_means):
 
 def cubic_features(X):
     """
-    Returns a new dataset with features given by the mapping
-    which corresponds to the cubic kernel.
+    Retorna um novo conjunto de dados com atributos definidos pelo mapeamento
+    que corresponde ao kernel cúbico.
     """
     n, d = X.shape  # dataset size, input dimension
     X_withones = np.ones((n, d + 1))
@@ -90,16 +101,14 @@ def cubic_features(X):
 
 def center_data(X):
     """
-    Returns a centered version of the data, where each feature now has mean = 0
+    Retorna uma versão centralizada dos dados, na qual cada atributo passa a ter média = 0
 
-    Args:
-        X - n x d NumPy array of n data points, each with d features
-
-    Returns:
-        - (n, d) NumPy array X' where for each i = 1, ..., n and j = 1, ..., d:
+    Argumentos:
+        X - array NumPy de dimensão n x d contendo n pontos de dados, cada um com d atributos
+    Retorna:
+        - array NumPy X' de dimensão (n, d), onde para cada i = 1, ..., n e j = 1, ..., d:
         X'[i][j] = X[i][j] - means[j]
-        - (d, ) NumPy array with the columns means
-
+        - array NumPy de dimensão (d, ) contendo as médias das colunas
     """
     feature_means = X.mean(axis=0)
     return (X - feature_means), feature_means
@@ -107,19 +116,19 @@ def center_data(X):
 
 def principal_components(centered_data):
     """
-    Returns the principal component vectors of the data, sorted in decreasing order
-    of eigenvalue magnitude. This function first calculates the covariance matrix
-    and then finds its eigenvectors.
+    Retorna os vetores dos componentes principais dos dados, ordenados em ordem decrescente
+    de magnitude do autovalor. Esta função primeiro calcula a matriz de covariância
+    e depois encontra seus autovetores.
 
-    Args:
-        centered_data - n x d NumPy array of n data points, each with d features
+    Argumentos:
+        centered_data - matriz NumPy n x d de n pontos de dados, cada um com d características
 
-    Returns:
-        d x d NumPy array whose columns are the principal component directions sorted
-        in descending order by the amount of variation each direction (these are
-        equivalent to the d eigenvectors of the covariance matrix sorted in descending
-        order of eigenvalues, so the first column corresponds to the eigenvector with
-        the largest eigenvalue
+    Retorna:
+        matriz NumPy d x d cujas colunas são as direções dos componentes principais, ordenadas
+        em ordem decrescente pela quantidade de variação em cada direção (estes são
+        equivalentes aos d autovetores da matriz de covariância, ordenados em ordem decrescente
+        de autovalores, portanto, a primeira coluna corresponde ao autovetor com
+        o maior autovalor
     """
     scatter_matrix = np.dot(centered_data.transpose(), centered_data)
     eigen_values, eigen_vectors = np.linalg.eig(scatter_matrix)
@@ -135,11 +144,12 @@ def principal_components(centered_data):
 
 def plot_PC(X, pcs, labels, feature_means):
     """
-    Given the principal component vectors as the columns of matrix pcs,
-    this function projects each sample in X onto the first two principal components
-    and produces a scatterplot where points are marked with the digit depicted in
-    the corresponding image.
-    labels = a numpy array containing the digits corresponding to each image in X.
+    Dado os vetores dos componentes principais como as colunas da matriz pcs,
+    esta função projeta cada amostra em X nos dois primeiros componentes principais
+    e produz um gráfico de dispersão onde os pontos são marcados com o dígito representado na
+    imagem correspondente.
+
+    labels = um array numpy contendo os dígitos correspondentes a cada imagem em X.
     """
     pc_data = project_onto_PC(X, pcs, n_components=2, feature_means=feature_means)
     text_labels = [str(z) for z in labels.tolist()]
@@ -157,10 +167,10 @@ def plot_PC(X, pcs, labels, feature_means):
 
 def reconstruct_PC(x_pca, pcs, n_components, X, feature_means):
     """
-    Given the principal component vectors as the columns of matrix pcs,
-    this function reconstructs a single image from its principal component
-    representation, x_pca.
-    X = the original data to which PCA was applied to get pcs.
+    Dados os vetores de componentes principais como as colunas da matriz `pcs`,
+    esta função reconstrói uma única imagem a partir de sua representação
+    por componentes principais, `x_pca`.
+    `X` = os dados originais aos quais o PCA foi aplicado para obter `pcs`.
     """
     x_reconstructed = np.dot(x_pca, pcs[:, range(n_components)].T) + feature_means
     return x_reconstructed
