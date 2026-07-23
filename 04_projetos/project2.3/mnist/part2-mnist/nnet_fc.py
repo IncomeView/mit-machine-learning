@@ -16,11 +16,11 @@ from train_utils import batchify_data, run_epoch, train_model
 
 
 def main():
-    # Load the dataset
+    # Carregue o conjunto de dados
     num_classes = 10
     X_train, y_train, X_test, y_test = get_MNIST_data()
 
-    # Split into train and dev
+    # Dividir em conjuntos de treino e desenvolvimento
     dev_split_index = int(9 * len(X_train) / 10)
     X_dev = X_train[dev_split_index:]
     y_dev = y_train[dev_split_index:]
@@ -32,7 +32,7 @@ def main():
     X_train = [X_train[i] for i in permutation]
     y_train = [y_train[i] for i in permutation]
 
-    # Split dataset into batches
+    # Dividir o conjunto de dados em lotes
     batch_size = 32
     train_batches = batchify_data(X_train, y_train, batch_size)
     dev_batches = batchify_data(X_dev, y_dev, batch_size)
@@ -41,24 +41,24 @@ def main():
     #################################
     ## Model specification TODO
     model = nn.Sequential(
-        nn.Linear(784, 10),
-        nn.ReLU(),
-        nn.Linear(10, 10),
+        nn.Linear(784, 128),
+        nn.LeakyReLU(),
+        nn.Linear(128, 10),
     )
-    lr = 0.1
-    momentum = 0
+    lr = 0.1  # Taxa de aprendizado
+    momentum = 0  # SGD
     ##################################
 
     train_model(train_batches, dev_batches, model, lr=lr, momentum=momentum)
 
-    ## Evaluate the model on test data
+    ## Avalie o modelo nos dados de teste
     loss, accuracy = run_epoch(test_batches, model.eval(), None)
 
     print("Loss on test set:" + str(loss) + " Accuracy on test set: " + str(accuracy))
 
 
 if __name__ == '__main__':
-    # Specify seed for deterministic behavior, then shuffle. Do not change seed for official submissions to edx
-    np.random.seed(12321)  # for reproducibility
-    torch.manual_seed(12321)  # for reproducibility
+    # Defina a semente para garantir um comportamento determinístico e, em seguida, embaralhe. Não altere a semente para envios oficiais ao edX.
+    np.random.seed(12321)  # para reprodutibilidade
+    torch.manual_seed(12321)  # para reprodutibilidade
     main()

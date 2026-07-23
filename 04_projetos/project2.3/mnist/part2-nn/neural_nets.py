@@ -5,11 +5,11 @@ import math
  ==================================
  Problem 3: Neural Network Basics
  ==================================
-	Gera uma rede neural com a seguinte arquitetura:
-	Rede neural totalmente conectada. 
-	O vetor de entrada recebe duas características. 
-	Uma camada oculta com três neurônios cuja função de ativação é a ReLU. 
-	Um neurônio de saída cuja função de ativação é a função identidade.
+    Gera uma rede neural com a seguinte arquitetura:
+    Rede neural totalmente conectada. 
+    O vetor de entrada recebe duas características. 
+    Uma camada oculta com três neurônios cuja função de ativação é a ReLU. 
+    Um neurônio de saída cuja função de ativação é a função identidade.
 """
 
 
@@ -79,7 +79,9 @@ class NeuralNetwork:
         ### Backpropagation ###
         # Calcular gradientes
         # 𝛿_out = a - y | É o erro da camada de saída
-        output_layer_error = activated_output - y
+        output_layer_error = (
+            (y - activated_output) * -1 * output_layer_activation_derivative(output)
+        )
 
         # Erro da camada oculta
         # ReLU'(z)
@@ -104,12 +106,14 @@ class NeuralNetwork:
         ### Gradient Descent Update ###
         # Use gradientes para ajustar pesos e vieses utilizando o gradiente descendente.
         # Learning_rate = 𝜂 (eta)
-        self.biases -= self.learning_rate * bias_gradients
-        self.input_to_hidden_weights -= (
-            self.learning_rate * input_to_hidden_weight_gradients
+        self.biases = self.biases - self.learning_rate * bias_gradients
+        self.input_to_hidden_weights = (
+            self.input_to_hidden_weights
+            - self.learning_rate * input_to_hidden_weight_gradients
         )
-        self.hidden_to_output_weights -= (
-            self.learning_rate * hidden_to_output_weight_gradients
+        self.hidden_to_output_weights = (
+            self.hidden_to_output_weights
+            - self.learning_rate * hidden_to_output_weight_gradients
         )
 
     def predict(self, x1, x2):
