@@ -40,33 +40,44 @@ def compute_accuracy(predictions, y):
 def train_model(
     train_data, dev_data, model, lr=0.01, momentum=0.9, nesterov=False, n_epochs=30
 ):
-    """Train a model for N epochs given data and hyper-params."""
-    # We optimize with SGD
     optimizer = torch.optim.SGD(
         model.parameters(), lr=lr, momentum=momentum, nesterov=nesterov
     )
 
+    train_acc_history = []
+    dev_acc_history = []
+    train_loss_history = []
+    dev_loss_history = []
+
     for epoch in range(1, n_epochs + 1):
         print("-------------\nEpoch {}:\n".format(epoch))
 
-        # Run **training***
-        loss, acc = run_epoch(train_data, model.train(), optimizer)
+        # Training
+        train_loss, train_acc = run_epoch(train_data, model.train(), optimizer)
         print(
             'Train | loss1: {:.6f}  accuracy1: {:.6f} | loss2: {:.6f}  accuracy2: {:.6f}'.format(
-                loss[0], acc[0], loss[1], acc[1]
+                train_loss[0], train_acc[0], train_loss[1], train_acc[1]
             )
         )
 
-        # Run **validation**
-        val_loss, val_acc = run_epoch(dev_data, model.eval(), optimizer)
+        # Validation
+        dev_loss, dev_acc = run_epoch(dev_data, model.eval(), None)
         print(
             'Valid | loss1: {:.6f}  accuracy1: {:.6f} | loss2: {:.6f}  accuracy2: {:.6f}'.format(
-                val_loss[0], val_acc[0], val_loss[1], val_acc[1]
+                dev_loss[0], dev_acc[0], dev_loss[1], dev_acc[1]
             )
         )
+
+        # Save history
+        train_acc_history.append(train_acc)
+        dev_acc_history.append(dev_acc)
+        train_loss_history.append(train_loss)
+        dev_loss_history.append(dev_loss)
 
         # Save model
         torch.save(model, 'mnist_model_fully_connected.pt')
+
+    return train_acc_history, dev_acc_history, train_loss_history, dev_loss_history
 
 
 def run_epoch(data, model, optimizer):
@@ -81,7 +92,7 @@ def run_epoch(data, model, optimizer):
     is_training = model.training
 
     # Iterate through batches
-    for batch in tqdm(data):
+    for batch in data:  # tqdm(data): # tqdm barra de progresso
         # Grab x and y
         x, y = batch['x'], batch['y']
 

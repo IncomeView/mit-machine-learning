@@ -4,8 +4,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from train_utils import batchify_data, run_epoch, train_model, Flatten
 import utils_multiMNIST as U
+import matplotlib.pyplot as plt
 
-path_to_data_dir = '../Datasets/'
+
+path_to_data_dir = './Datasets/'
 use_mini_dataset = True
 
 batch_size = 64
@@ -15,17 +17,25 @@ num_classes = 10
 img_rows, img_cols = 42, 28  # input image dimensions
 
 
+# MultiLayer Perceptron
 class MLP(nn.Module):
 
     def __init__(self, input_dimension):
         super(MLP, self).__init__()
         self.flatten = Flatten()
-        # TODO initialize model layers here
+        # Inicialize as camadas do modelo aqui
+        self.linear1 = nn.Linear(input_dimension, 64)
+        self.linear2 = nn.Linear(64, 64)
+        self.linear_first_digit = nn.Linear(64, 10)
+        self.linear_second_digit = nn.Linear(64, 10)
 
     def forward(self, x):
         xf = self.flatten(x)
-
-        # TODO use model layers to predict the two digits
+        # use camadas do modelo para prever os dois dígitos
+        out1 = F.relu(self.linear1(xf))
+        out2 = F.relu(self.linear2(out1))
+        out_first_digit = self.linear_first_digit(out2)
+        out_second_digit = self.linear_second_digit(out2)
 
         return out_first_digit, out_second_digit
 
@@ -58,7 +68,10 @@ def main():
     model = MLP(input_dimension)  # TODO add proper layers to MLP class above
 
     # Train
-    train_model(train_batches, dev_batches, model)
+    # train_model(train_batches, dev_batches, model)
+    train_acc_hist, dev_acc_hist, train_loss_hist, dev_loss_hist = train_model(
+        train_batches, dev_batches, model
+    )
 
     ## Evaluate the model on test data
     loss, acc = run_epoch(test_batches, model.eval(), None)
@@ -67,6 +80,20 @@ def main():
             loss[0], acc[0], loss[1], acc[1]
         )
     )
+
+    epochs = range(1, len(train_acc_hist) + 1)
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(epochs, [acc[0] for acc in train_acc_hist], label='Train Acc Digit 1')
+    plt.plot(epochs, [acc[0] for acc in dev_acc_hist], label='Dev Acc Digit 1')
+    plt.plot(epochs, [acc[1] for acc in train_acc_hist], label='Train Acc Digit 2')
+    plt.plot(epochs, [acc[1] for acc in dev_acc_hist], label='Dev Acc Digit 2')
+
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy per Epoch")
+    plt.legend()
+    plt.show()
 
 
 if __name__ == '__main__':
