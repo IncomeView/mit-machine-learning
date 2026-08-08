@@ -6,17 +6,16 @@ from common import GaussianMixture
 
 
 def estep(X: np.ndarray, mixture: GaussianMixture) -> np.ndarray:
-    """E-step: Assigns each datapoint to the gaussian component with the
-    closest mean
+    """E-step: Atribui cada ponto de dados ao componente gaussiano com a
+            média mais próxima
 
     Args:
-        X: (n, d) array holding the data
-        mixture: the current gaussian mixture
+            X: array (n, d) contendo os dados
+            mixture: a mistura gaussiana atual
 
     Returns:
-        np.ndarray: (n, K) array holding the soft counts
-            for all components for all examples
-
+            np.ndarray: array (n, K) contendo as contagens suaves
+                    para todos os componentes e todos os exemplos
     """
     n, _ = X.shape
     K, _ = mixture.mu.shape
@@ -32,16 +31,17 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> np.ndarray:
 
 
 def mstep(X: np.ndarray, post: np.ndarray) -> Tuple[GaussianMixture, float]:
-    """M-step: Updates the gaussian mixture. Each cluster
-    yields a component mean and variance.
+    """M-step: Atualiza a mistura de gaussianas. Cada cluster
+                gera uma média e uma variância de componente.
 
-    Args: X: (n, d) array holding the data
-        post: (n, K) array holding the soft counts
-            for all components for all examples
+    Args: X:
+                array (n, d) contendo os dados
+                post: array (n, K) contendo as contagens suaves
+                        para todos os componentes e todos os exemplos
 
     Returns:
-        GaussianMixture: the new gaussian mixture
-        float: the distortion cost for the current assignment
+                GaussianMixture: a nova mistura de gaussianas
+                float: o custo de distorção para a atribuição atual
     """
     n, d = X.shape
     _, K = post.shape
@@ -65,18 +65,18 @@ def mstep(X: np.ndarray, post: np.ndarray) -> Tuple[GaussianMixture, float]:
 def run(
     X: np.ndarray, mixture: GaussianMixture, post: np.ndarray
 ) -> Tuple[GaussianMixture, np.ndarray, float]:
-    """Runs the mixture model
+    """Executa o modelo de mistura
 
     Args:
-        X: (n, d) array holding the data
-        post: (n, K) array holding the soft counts
-            for all components for all examples
+                X: array (n, d) contendo os dados
+                post: array (n, K) contendo as contagens suaves
+                        para todos os componentes e todos os exemplos
 
     Returns:
-        GaussianMixture: the new gaussian mixture
-        np.ndarray: (n, K) array holding the soft counts
-            for all components for all examples
-        float: distortion cost of the current assignment
+                GaussianMixture: a nova mistura gaussiana
+                np.ndarray: array (n, K) contendo as contagens suaves
+                        para todos os componentes e todos os exemplos
+                float: custo de distorção da atribuição atual
     """
 
     prev_cost = None

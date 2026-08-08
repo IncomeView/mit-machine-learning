@@ -6,31 +6,31 @@ from common import GaussianMixture
 
 
 def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
-    """E-step: Softly assigns each datapoint to a gaussian component
+    """E-step: Atribui de forma suave cada ponto de dados a um componente gaussiano
 
     Args:
-        X: (n, d) array holding the data
-        mixture: the current gaussian mixture
+                X: array (n, d) contendo os dados
+                mixture: a mistura gaussiana atual
 
     Returns:
-        np.ndarray: (n, K) array holding the soft counts
-            for all components for all examples
-        float: log-likelihood of the assignment
+                np.ndarray: array (n, K) contendo as contagens suaves
+                        para todos os componentes e todos os exemplos
+                float: log-verossimilhança da atribuição
     """
     raise NotImplementedError
 
 
 def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
-    """M-step: Updates the gaussian mixture by maximizing the log-likelihood
-    of the weighted dataset
+    """M-step: Atualiza a mistura gaussiana maximizando a log-verossimilhança
+            do conjunto de dados ponderado
 
     Args:
-        X: (n, d) array holding the data
-        post: (n, K) array holding the soft counts
-            for all components for all examples
+                X: array (n, d) contendo os dados
+                post: array (n, K) contendo as contagens suaves
+                        para todos os componentes e todas as amostras
 
     Returns:
-        GaussianMixture: the new gaussian mixture
+                GaussianMixture: a nova mistura gaussiana
     """
     raise NotImplementedError
 
@@ -41,14 +41,14 @@ def run(
     """Runs the mixture model
 
     Args:
-        X: (n, d) array holding the data
-        post: (n, K) array holding the soft counts
-            for all components for all examples
+                X: array (n, d) contendo os dados
+                post: array (n, K) contendo as contagens suaves
+                        para todos os componentes e todas as amostras
 
     Returns:
-        GaussianMixture: the new gaussian mixture
-        np.ndarray: (n, K) array holding the soft counts
-            for all components for all examples
-        float: log-likelihood of the current assignment
+                GaussianMixture: a nova mistura gaussiana
+                np.ndarray: array (n, K) contendo as contagens suaves
+                        para todos os componentes e todos os exemplos
+                float: log-verossimilhança da atribuição atual
     """
     raise NotImplementedError

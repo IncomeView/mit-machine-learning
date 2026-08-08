@@ -1,4 +1,4 @@
-"""Mixture model for collaborative filtering"""
+"""Mixture model para filtragem colaborativa"""
 
 from typing import NamedTuple, Tuple
 import numpy as np
@@ -7,27 +7,28 @@ from matplotlib.patches import Circle, Arc
 
 
 class GaussianMixture(NamedTuple):
-    """Tuple holding a gaussian mixture"""
+    """Tupla contendo uma gaussian mixture"""
 
-    mu: np.ndarray  # (K, d) array - each row corresponds to a gaussian component mean
-    var: np.ndarray  # (K, ) array - each row corresponds to the variance of a component
-    p: np.ndarray  # (K, ) array = each row corresponds to the weight of a component
+    mu: (
+        np.ndarray
+    )  # (K, d) array - cada linha corresponde a uma média de componente gaussiana
+    var: np.ndarray  # (K, ) array - cada linha corresponde à variância de um componente
+    p: np.ndarray  # (K, ) array = cada linha corresponde ao peso de um componente
 
 
 def init(X: np.ndarray, K: int, seed: int = 0) -> Tuple[GaussianMixture, np.ndarray]:
-    """Initializes the mixture model with random points as initial
-    means and uniform assingments
+    """Inicializa o modelo de mistura com pontos aleatórios como ponto inicial
+    atribuições de médias e uniformes
 
     Args:
-        X: (n, d) array holding the data
-        K: number of components
-        seed: random seed
+        X: (n, d) array que armazena os dados
+        K: número de componentes
+        seed: semente aleatória
 
     Returns:
-        mixture: the initialized gaussian mixture
-        post: (n, K) array holding the soft counts
-            for all components for all examples
-
+        mixture: a mistura gaussiana inicializada
+        post: (n, K) array que armazena as contagens parciais
+            para todos os componentes, para todos os exemplos
     """
     np.random.seed(seed)
     n, _ = X.shape
@@ -61,7 +62,15 @@ def plot(X: np.ndarray, mixture: GaussianMixture, post: np.ndarray, title: str):
         theta = 0
         for j in range(K):
             offset = percent[i, j] * 360
-            arc = Arc(point, r, r, 0, theta, theta + offset, edgecolor=color[j])
+            arc = Arc(
+                xy=point,
+                width=r,
+                height=r,
+                angle=0,
+                theta1=theta,
+                theta2=theta + offset,
+                edgecolor=color[j],
+            )
             ax.add_patch(arc)
             theta += offset
     for j in range(K):
@@ -80,15 +89,15 @@ def rmse(X, Y):
 
 
 def bic(X: np.ndarray, mixture: GaussianMixture, log_likelihood: float) -> float:
-    """Computes the Bayesian Information Criterion for a
+    """Calcula o Critério de Informação Bayesiano para um
     mixture of gaussians
 
     Args:
-        X: (n, d) array holding the data
-        mixture: a mixture of spherical gaussian
-        log_likelihood: the log-likelihood of the data
+        X: (n, d) array que armazena os dados
+        mixture: uma mistura de gaussianas esféricas
+        log_likelihood: a log-verossimilhança dos dados
 
     Returns:
-        float: the BIC for this mixture
+        float: o BIC para esta mistura
     """
     raise NotImplementedError
