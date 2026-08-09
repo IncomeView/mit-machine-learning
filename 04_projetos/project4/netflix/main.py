@@ -4,28 +4,63 @@ import common
 import naive_em
 import em
 
-X = np.loadtxt("toy_data.txt")
 
-Ks = [5, 6]
-seeds = [0, 1, 2, 3, 4]
+def run_kmeans(X):
+    Ks = [1, 2, 3, 4]
+    seeds = [0, 1, 2, 3, 4]
 
-for K in Ks:
-    b_cost = float("inf")
-    b_mixture = None
-    b_post = None
-    b_seed = None
+    for K in Ks:
+        best_cost = float("inf")
+        best_mixture = None
+        best_post = None
+        best_seed = None
 
-    for seed in seeds:
-        # Inicializa mistura e responsabilidades
-        mixture, post = common.init(X, K, seed)
-        # Roda K-means
-        mixture, post, cost = kmeans.run(X, mixture, post)
+        for seed in seeds:
+            mixture, post = common.init(X, K, seed)
+            mixture, post, cost = kmeans.run(X, mixture, post)
 
-        if cost < b_cost:
-            b_cost = cost
-            b_mixture = mixture
-            b_post = post
-            b_seed = seed
+            if cost < best_cost:
+                best_cost = cost
+                best_mixture = mixture
+                best_post = post
+                best_seed = seed
 
-    common.plot(X, b_mixture, b_post, f"K={K}, seed={b_seed}")
-    print(f"Cost K={K} = {b_cost}")
+        print(f"K-means: Cost K={K} = {best_cost:.4f} (seed={best_seed})")
+        common.plot(X, best_mixture, best_post, f"K-means K={K}, seed={best_seed}")
+
+
+def run_em(X):
+    Ks = [1, 2, 3, 4]
+    seeds = [0, 1, 2, 3, 4]
+
+    for K in Ks:
+        best_LL = -np.inf
+        best_mixture = None
+        best_post = None
+        best_seed = None
+
+        for seed in seeds:
+            mixture, post = common.init(X, K, seed)
+            mixture, post, LL = naive_em.run(X, mixture, post)
+
+            if LL > best_LL:
+                best_LL = LL
+                best_mixture = mixture
+                best_post = post
+                best_seed = seed
+
+        print(f"EM: Log-verossimilhança K={K} = {best_LL:.4f} (seed={best_seed})")
+        common.plot(X, best_mixture, best_post, f"EM K={K}, seed={best_seed}")
+
+
+def main():
+    X = np.loadtxt("toy_data.txt")
+
+    run_kmeans(X)
+
+
+#    run_em(X)
+
+
+if __name__ == "__main__":
+    main()

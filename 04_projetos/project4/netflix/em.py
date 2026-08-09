@@ -2,6 +2,8 @@
 
 from typing import Tuple
 import numpy as np
+import common
+import naive_em
 from scipy.special import logsumexp
 from common import GaussianMixture
 
