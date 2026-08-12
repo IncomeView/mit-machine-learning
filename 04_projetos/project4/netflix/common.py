@@ -17,19 +17,6 @@ class GaussianMixture(NamedTuple):
 
 
 def init(X: np.ndarray, K: int, seed: int = 0) -> Tuple[GaussianMixture, np.ndarray]:
-    """Inicializa o modelo de mistura com pontos aleatórios como ponto inicial
-    atribuições de médias e uniformes
-
-    Args:
-        X: (n, d) array que armazena os dados
-        K: número de componentes
-        seed: semente aleatória
-
-    Returns:
-        mixture: a mistura gaussiana inicializada
-        post: (n, K) array que armazena as contagens parciais
-            para todos os componentes, para todos os exemplos
-    """
     np.random.seed(seed)
     n, _ = X.shape
     p = np.ones(K) / K
@@ -45,6 +32,19 @@ def init(X: np.ndarray, K: int, seed: int = 0) -> Tuple[GaussianMixture, np.ndar
     post = np.ones((n, K)) / K
 
     return mixture, post
+    """Inicializa o modelo de mistura com pontos aleatórios como ponto inicial
+    atribuições de médias e uniformes
+
+    Args:
+        X: (n, d) array que armazena os dados
+        K: número de componentes
+        seed: semente aleatória
+
+    Returns:
+        mixture: a mistura gaussiana inicializada
+        post: (n, K) array que armazena as contagens parciais
+            para todos os componentes, para todos os exemplos
+    """
 
 
 def plot(X: np.ndarray, mixture: GaussianMixture, post: np.ndarray, title: str):
@@ -89,6 +89,15 @@ def rmse(X, Y):
 
 
 def bic(X: np.ndarray, mixture: GaussianMixture, log_likelihood: float) -> float:
+    n, d = X.shape
+    K = mixture.mu.shape[0]
+    p = (
+        K * (d + 2) - 1
+    )  # Número de parâmetros livres: K means, K variances, K-1 mixture weights
+
+    return log_likelihood - 0.5 * p * np.log(
+        n
+    )  # BIC = log-likelihood - 0.5 * p * log(n)
     """Calcula o Critério de Informação Bayesiano para um
     mixture of gaussians
 
@@ -100,4 +109,3 @@ def bic(X: np.ndarray, mixture: GaussianMixture, log_likelihood: float) -> float
     Returns:
         float: o BIC para esta mistura
     """
-    raise NotImplementedError
