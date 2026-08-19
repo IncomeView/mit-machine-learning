@@ -1,3 +1,5 @@
+notes.md
+
 <a id="indice"></a>
 
 
@@ -147,9 +149,39 @@ Unit 4. | Probabilistic Models, Mixture Models & EM Algorithm
 20. [Da GMM aos VAEs](#gmm_vae)
 
 
+<a id="unit5"></a>
+
 =====================================  
-Unit 5. | 
+Unit 5. | Reinforcement Learning  
 =====================================
+
+### 17. Reinforcement Learning 1 — MDPs e Bellman Equations
+1. [Overview — Motivação e Diferenças entre RL e Supervisionado](#lecture17_parte1)
+2. [Learning to Control — Intuição do RL](#lecture17_parte2)
+3. [Terminologia Fundamental — $S$, $A$, $T$, $R$](#lecture17_parte3)
+4. [Função de Utilidade — Recompensas Descontadas](#lecture17_parte4)
+5. [Políticas e Funções de Valor — $V^\pi(s)$ e $V^*(s)$](#lecture17_parte5)
+6. [Equações de Bellman — Intuição](#lecture17_parte6)
+7. [Bellman Optimality — Forma Completa](#lecture17_parte7)
+8. [Preparação para Value Iteration](#lecture17_parte8)
+
+### 18. Reinforcement Learning 2 — Value Iteration
+9. [Bellman Optimality — Revisão Formal](#lecture18_parte1)
+10. [Value Iteration — Atualização Recursiva](#lecture18_parte2)
+11. [Convergência — Contração e Ponto Fixo](#lecture18_parte3)
+12. [Extração da Política Ótima — $ \pi^*(s) = \arg\max_a [...] $](#lecture18_parte4)
+13. [Exemplos em Gridworld — Propagação de Valores](#lecture18_parte5)
+14. [Conexão com Planejamento e Controle](#lecture18_parte6)
+
+### 19. Reinforcement Learning 3 — Q-Learning
+15. [Função Q — $Q(s,a)$ e Relação com $V(s)$](#lecture19_parte1)
+16. [Bellman para Ações — $Q^*(s,a)$](#lecture19_parte2)
+17. [Q-Learning — Atualização Estocástica](#lecture19_parte3)
+18. [Exploração vs. Exploração — $\varepsilon$-greedy](#lecture19_parte4)
+19. [Convergência do Q-Learning](#lecture19_parte5)
+20. [Q-Tables — Implementação em Gridworld](#lecture19_parte6)
+21. [Conexão com RL Completo — Aprender sem conhecer $T$ e $R$](#lecture19_parte7)
+22. [Preparação para o Projeto Final — Agentes que Jogam Jogos de Texto](#lecture19_parte8)
 
 
 1. [proximo](#px)
@@ -11830,10 +11862,3715 @@ Os VAEs são a culminação moderna da teoria iniciada com GMMs e EM.
 
 
 
+<br><br>
+
+
+
+
+<a id="lecture17_parte1"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 17 — Parte 1  
+Overview — Introdução ao Aprendizado por Reforço  
+=============================
+
+Nesta lecture iniciamos a Unidade 5, dedicada ao **Reinforcement Learning (RL)**.  
+Assim como na Lecture 16, esta parte apresenta:
+
+- o objetivo geral da unidade,  
+- a motivação por trás do RL,  
+- o cenário que diferencia RL de aprendizado supervisionado,  
+- o papel dos MDPs como primeiro passo,  
+- e como isso se conecta ao projeto final da unidade.
+
+---
+
+## 1. O que é Reinforcement Learning?
+
+Reinforcement Learning é um paradigma onde:
+
+> O agente **toma ações**, **interage com o ambiente**, e recebe **recompensa apenas no final** da tarefa.
+
+Isso contrasta com o aprendizado supervisionado, onde:
+
+- cada ação possui um rótulo correto,  
+- cada passo tem supervisão direta.
+
+No RL:
+
+- não há supervisão passo a passo,  
+- o agente deve descobrir sozinho quais ações levam ao sucesso,  
+- a recompensa é atrasada e deve ser propagada para trás.
+
+---
+
+## 2. Motivação: Por que RL é importante?
+
+Um dos exemplos mais empolgantes é o **AlphaGo**, onde:
+
+- a máquina não recebe recompensa por cada jogada,  
+- apenas importa se o jogo foi vencido ou perdido,  
+- o agente aprende estratégias complexas sem supervisão direta.
+
+Outros exemplos incluem:
+
+- robôs navegando terrenos complexos,  
+- sistemas de marketing decidindo ações para conquistar clientes,  
+- agentes que aprendem a jogar videogames apenas pela recompensa final.
+
+---
+
+## 3. O desafio central do RL
+
+O agente deve:
+
+- explorar ações,  
+- experimentar caminhos,  
+- descobrir o que funciona,  
+- e aprender a partir de recompensas atrasadas.
+
+O problema é:
+
+> Como propagar a recompensa final para todas as ações que contribuíram para ela?
+
+---
+
+## 4. O primeiro passo: Processos de Decisão de Markov (MDPs)
+
+Antes de estudar RL completo, começamos com um cenário simplificado:
+
+> **MDPs — quando o agente conhece todas as recompensas e transições entre estados.**
+
+Nos MDPs:
+
+- sabemos exatamente como o ambiente funciona,  
+- conhecemos as probabilidades de transição $T(s,a,s')$,  
+- conhecemos as recompensas $R(s)$ ou $R(s,a,s')$,  
+- podemos calcular a política ótima matematicamente.
+
+Isso nos permite:
+
+- formalizar o problema,  
+- entender funções de valor,  
+- estudar Equações de Bellman,  
+- implementar Value Iteration.
+
+---
+
+## 5. O que vem depois dos MDPs?
+
+Após dominar MDPs, removemos as suposições:
+
+- o agente **não conhece** as transições,  
+- o agente **não conhece** as recompensas,  
+- o agente deve **explorar o mundo real** para aprender.
+
+Esse é o RL completo, que será estudado nas Lectures 18 e 19.
+
+---
+
+## 6. Conexão com o Projeto da Unidade
+
+Ao final da unidade, você implementará:
+
+> Um agente capaz de jogar **jogos baseados em texto**, aprendendo apenas por reforço.
+
+Esse projeto utiliza:
+
+- MDPs,  
+- Equações de Bellman,  
+- Value Iteration,  
+- Q-Learning.
+
+---
+
+## 7. Conclusão da Parte 1
+
+Nesta parte entendemos:
+
+- o que é RL,  
+- por que ele é diferente do aprendizado supervisionado,  
+- por que recompensas atrasadas tornam o problema difícil,  
+- como MDPs servem como base matemática,  
+- como isso se conecta ao projeto final da unidade.
+
+Na próxima parte estudaremos:
+
+- a definição formal de RL,  
+- exemplos intuitivos,  
+- e como RL se relaciona com controle de agentes.
 
 
 
 <br><br>
 
-<a id="px"></a>
-[$\Uparrow$ Índice](#indice)
+
+
+
+<a id="lecture17_parte2"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 17 — Parte 2  
+Learning to Control: Introdução ao Reinforcement Learning  
+=============================
+
+Nesta parte aprofundamos a motivação do RL e entendemos por que ele é fundamental para problemas de **controle**, **tomada de decisão sequencial** e **aprendizado baseado em interação com o ambiente**.
+
+---
+
+## 1. Reinforcement Learning: uma nova forma de aprender
+
+A professora inicia explicando que muitos já ouviram falar de RL por causa de sistemas como **AlphaGo**, que derrotou campeões mundiais sem receber instruções passo a passo.
+
+O RL é diferente do aprendizado supervisionado porque:
+
+- não existe rótulo para cada ação,  
+- não existe supervisão contínua,  
+- o agente deve **descobrir sozinho** quais ações levam ao sucesso.
+
+Em RL:
+
+> O agente aprende **experimentando**, **explorando** e **observando consequências**.
+
+---
+
+## 2. Por que RL é diferente do aprendizado supervisionado?
+
+No aprendizado supervisionado:
+
+- cada exemplo possui uma resposta correta,  
+- o modelo aprende diretamente a função alvo.
+
+No RL:
+
+- o agente toma ações sem saber se são boas,  
+- só descobre depois, quando recebe a recompensa final,  
+- deve aprender a **propagar a recompensa final para trás**.
+
+Essa diferença é o coração do RL.
+
+---
+
+## 3. Exemplos intuitivos de RL
+
+### 3.1 O rato no labirinto  
+O rato:
+
+- tenta caminhos diferentes,  
+- não recebe recompensa a cada passo,  
+- só recebe quando encontra comida.
+
+### 3.2 Jogos de computador  
+O agente:
+
+- pode receber pequenas recompensas intermediárias,  
+- mas o que realmente importa é **vencer ou perder**.
+
+### 3.3 Robôs navegando ambientes  
+O robô:
+
+- toma ações com custos diferentes,  
+- pode receber pequenas recompensas,  
+- mas o objetivo é **chegar ao destino**.
+
+### 3.4 Marketing e interação com clientes  
+O agente (empresa):
+
+- pode enviar e-mail, ligar, mandar presente, etc.,  
+- cada ação tem custo,  
+- o que importa é **fechar o contrato**.
+
+---
+
+## 4. O desafio central do RL
+
+O problema é:
+
+> Como aprender a partir de recompensas atrasadas?
+
+O agente deve:
+
+- explorar ações,  
+- experimentar caminhos,  
+- descobrir o que funciona,  
+- aprender a partir de sucessos e fracassos.
+
+Esse processo é o que torna RL mais complexo e mais poderoso que o aprendizado supervisionado.
+
+---
+
+## 5. A necessidade de formalização
+
+Para estudar RL matematicamente, precisamos:
+
+- definir estados $s$,  
+- definir ações $a$,  
+- definir transições $T(s,a,s')$,  
+- definir recompensas $R(s)$ ou $R(s,a,s')$.
+
+Isso nos leva ao conceito de:
+
+> **Processos de Decisão de Markov (MDPs)**
+
+que serão estudados formalmente na Parte 3.
+
+---
+
+## 6. Conexão com controle
+
+A professora explica que RL é, essencialmente:
+
+> **Aprender a controlar um agente em um ambiente incerto.**
+
+O agente deve:
+
+- decidir ações,  
+- prever consequências,  
+- maximizar recompensas futuras.
+
+Isso conecta RL com:
+
+- controle ótimo,  
+- tomada de decisão sequencial,  
+- planejamento probabilístico.
+
+---
+
+## 7. Conclusão da Parte 2
+
+Nesta parte entendemos:
+
+- por que RL é diferente do aprendizado supervisionado,  
+- como RL se aplica a jogos, robótica e marketing,  
+- por que recompensas atrasadas tornam o problema difícil,  
+- como RL é essencialmente um problema de controle,  
+- por que precisamos formalizar o problema usando MDPs.
+
+Na próxima parte estudaremos:
+
+- Estados,  
+- Ações,  
+- Transições,  
+- Recompensas,  
+- A definição formal de um MDP.
+
+
+
+
+<br><br>
+
+
+
+
+<a id="lecture17_parte3"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 17 — Parte 3  
+Terminologia Fundamental do Reinforcement Learning  
+=============================
+
+Nesta parte formalizamos os conceitos essenciais que compõem um  
+**Processo de Decisão de Markov (MDP)**.  
+Assim como na Lecture 16, esta seção estabelece a linguagem matemática que será usada nas partes seguintes.
+
+Os quatro elementos fundamentais são:
+
+1. **Estados**  
+2. **Ações**  
+3. **Transições**  
+4. **Recompensas**
+
+---
+
+## 1. Estados — $s$ e conjunto de estados — $S$
+
+Um **estado** representa uma configuração do ambiente.
+
+Usamos:
+
+- $s$ para um estado individual,  
+- $S$ para o conjunto de todos os estados.
+
+Nesta lecture assumimos:
+
+> **Todos os estados são observáveis.**
+
+Ou seja, o agente sabe exatamente onde está no ambiente.
+
+Exemplo:
+
+- Em um grid com 8 posições, cada posição é um estado.  
+- Estados especiais podem representar perigo, objetivo ou paredes.
+
+---
+
+## 2. Ações — $a$ e conjunto de ações — $A$
+
+Uma **ação** é algo que o agente pode fazer em um estado.
+
+Usamos:
+
+- $a$ para uma ação individual,  
+- $A$ para o conjunto de ações possíveis.
+
+Exemplo típico em um grid:
+
+$$
+A = \{\text{cima},\ \text{baixo},\ \text{esquerda},\ \text{direita}\}
+$$
+
+Se o agente tenta se mover contra uma parede:
+
+> Ele permanece no mesmo estado.
+
+---
+
+## 3. Transições — $T(s,a,s')$
+
+O ambiente é **não determinístico**.
+
+Isso significa que:
+
+> Mesmo que o agente escolha uma ação, ele pode acabar em estados diferentes.
+
+A função de transição é definida como:
+
+$$
+T(s,a,s') = P(s' \mid s,a)
+$$
+
+Exemplo clássico:
+
+- 80% de chance de ir na direção desejada,  
+- 10% de chance de desviar para a esquerda,  
+- 10% de chance de desviar para a direita.
+
+Assim, se o agente está em $s$ e escolhe ação $a$:
+
+- ele pode terminar em $s'$, $s''$, ou até permanecer em $s$.
+
+---
+
+## 4. Recompensas — $R(s)$ ou $R(s,a,s')$
+
+A recompensa define o que é “bom” ou “ruim” para o agente.
+
+Pode ser definida de duas formas:
+
+### 4.1 Recompensa por estado  
+$$
+R(s)
+$$
+
+Exemplo:
+
+- estado objetivo: $R = +1$  
+- estado perigoso: $R = -1$
+
+### 4.2 Recompensa por transição  
+$$
+R(s,a,s')
+$$
+
+Exemplo:
+
+- custo por movimento: $-0.01$  
+- custo por ação de marketing: depende da ação tomada  
+- recompensa final: depende do estado alcançado
+
+Ambas são válidas e usadas em diferentes problemas.
+
+---
+
+## 5. O MDP completo
+
+Um MDP é definido pelo quádruplo:
+
+$$
+(S,\ A,\ T,\ R)
+$$
+
+onde:
+
+- $S$ — conjunto de estados  
+- $A$ — conjunto de ações  
+- $T$ — função de transição  
+- $R$ — função de recompensa  
+
+Podemos adicionar:
+
+- estado inicial $s_0$,  
+- estados terminais (absorventes),  
+- restrições de movimento.
+
+Mas a estrutura fundamental permanece a mesma.
+
+---
+
+## 6. Por que essa terminologia é essencial?
+
+Porque ela permite:
+
+- formalizar o problema de RL,  
+- definir funções de valor,  
+- escrever Equações de Bellman,  
+- implementar Value Iteration,  
+- conectar MDPs ao RL completo.
+
+Sem essa base, não é possível avançar para as partes seguintes.
+
+---
+
+## 7. Conclusão da Parte 3
+
+Nesta parte aprendemos:
+
+- o que são estados, ações, transições e recompensas,  
+- como o ambiente é modelado probabilisticamente,  
+- como definir formalmente um MDP,  
+- por que essa estrutura é essencial para RL.
+
+Na próxima parte estudaremos:
+
+- Funções de utilidade,  
+- Recompensas descontadas,  
+- Por que precisamos do fator de desconto $\gamma$,  
+- Como garantir que a utilidade seja finita.
+
+
+
+
+<Br><br>
+
+
+
+
+<a id="lecture17_parte4"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 17 — Parte 4  
+Função de Utilidade e Recompensas Descontadas  
+=============================
+
+Nesta parte formalizamos como o agente deve **agregar recompensas ao longo do tempo**.  
+O objetivo é responder:
+
+> Como medir a qualidade de uma trajetória de estados em um MDP?
+
+Para isso, introduzimos a **função de utilidade**, que define o valor total acumulado pelo agente.
+
+---
+
+## 1. O problema: como somar recompensas?
+
+Uma trajetória é uma sequência de estados:
+
+$$
+s_0,\ s_1,\ s_2,\ \dots
+$$
+
+Uma primeira ideia seria somar todas as recompensas:
+
+$$
+U = \sum_{t=0}^{\infty} R(s_t)
+$$
+
+Mas isso apresenta dois problemas sérios:
+
+### ❌ 1. A soma pode ser infinita  
+Se o agente recebe pequenas recompensas continuamente, a soma diverge.
+
+### ❌ 2. O comportamento deixa de ser estacionário  
+O valor de um estado passa a depender do **tempo**, não apenas do estado.
+
+Isso viola a propriedade de Markov que queremos manter.
+
+---
+
+## 2. Tentativa alternativa: horizonte finito
+
+Outra ideia seria limitar a soma:
+
+$$
+U = \sum_{t=0}^{n} R(s_t)
+$$
+
+Mas isso também é problemático:
+
+- o comportamento passa a depender de **quantos passos restam**,  
+- o agente pode agir de forma **arriscada** quando está perto do fim,  
+- a política deixa de ser estacionária.
+
+Por isso, essa abordagem não é usada em MDPs.
+
+---
+
+## 3. Solução correta: Recompensas Descontadas
+
+Para garantir que a utilidade seja finita e bem comportada, usamos **desconto exponencial**:
+
+$$
+U = \sum_{t=0}^{\infty} \gamma^t R(s_t)
+$$
+
+onde:
+
+- $0 < \gamma < 1$ é o **fator de desconto**,  
+- recompensas futuras valem menos que recompensas imediatas.
+
+---
+
+## 4. Intuição do fator de desconto
+
+O fator $\gamma$ modela um comportamento natural:
+
+- valorizamos mais o que recebemos **agora**,  
+- valorizamos menos o que recebemos **no futuro**.
+
+Exemplo intuitivo:
+
+- assistir um filme agora vs. estudar para uma prova distante,  
+- comer um doce agora vs. manter dieta para um benefício futuro.
+
+O agente se torna **ganancioso**, mas de forma controlada.
+
+---
+
+## 5. Prova de que a utilidade é limitada
+
+Se $R(s_t) \le R_{\max}$, então:
+
+$$
+U \le \sum_{t=0}^{\infty} \gamma^t R_{\max}
+$$
+
+Fatorando:
+
+$$
+U \le R_{\max} \sum_{t=0}^{\infty} \gamma^t
+$$
+
+A soma é uma série geométrica:
+
+$$
+\sum_{t=0}^{\infty} \gamma^t = \frac{1}{1 - \gamma}
+$$
+
+Portanto:
+
+$$
+U \le \frac{R_{\max}}{1 - \gamma}
+$$
+
+### ✔ A utilidade é finita  
+### ✔ O problema é bem definido  
+### ✔ Podemos aplicar Bellman Equations  
+
+---
+
+## 6. Consequências importantes
+
+### 6.1 O comportamento do agente se torna estacionário  
+A melhor ação depende **apenas do estado atual**, não do tempo.
+
+### 6.2 O problema se torna matematicamente tratável  
+Podemos definir funções de valor e políticas ótimas.
+
+### 6.3 O algoritmo de Value Iteration passa a convergir  
+Sem desconto, a convergência não é garantida.
+
+---
+
+## 7. Conclusão da Parte 4
+
+Nesta parte aprendemos:
+
+- por que somar recompensas diretamente não funciona,  
+- como recompensas descontadas resolvem o problema,  
+- como o fator $\gamma$ garante finitude,  
+- como isso prepara o terreno para políticas ótimas e Equações de Bellman.
+
+Na próxima parte estudaremos:
+
+- Políticas ótimas,  
+- Funções de valor,  
+- Relação entre política e utilidade.
+
+
+
+
+<br><br>
+
+
+
+<a id="lecture17_parte5"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 17 — Parte 5  
+Políticas e Funções de Valor  
+=============================
+
+Nesta parte concluímos a Lecture 17 introduzindo dois conceitos fundamentais para resolver MDPs:
+
+1. **Política** — como o agente decide suas ações.  
+2. **Função de valor** — como medir a qualidade de um estado.
+
+Esses conceitos são essenciais para formular as **Equações de Bellman** e, posteriormente, o algoritmo de **Value Iteration**.
+
+---
+
+## 1. O que é uma política?
+
+Uma **política** define o comportamento do agente.
+
+### Definição:
+Uma política é uma função:
+
+$$
+\pi(s) = a
+$$
+
+que indica qual ação $a$ deve ser tomada quando o agente está no estado $s$.
+
+### Política ótima:
+Chamamos de política ótima:
+
+$$
+\pi^*
+$$
+
+a política que maximiza a utilidade esperada ao longo do tempo.
+
+---
+
+## 2. Por que políticas são necessárias?
+
+Porque o ambiente é **não determinístico**:
+
+- o agente escolhe uma ação,  
+- mas pode acabar em estados diferentes,  
+- com probabilidades diferentes.
+
+Assim, a política deve considerar:
+
+- recompensas imediatas,  
+- recompensas futuras,  
+- transições probabilísticas.
+
+---
+
+## 3. Função de valor
+
+A função de valor mede **o valor esperado** de estar em um estado, seguindo uma política.
+
+### Definição geral:
+
+$$
+V^\pi(s) = \mathbb{E}\left[ \sum_{t=0}^{\infty} \gamma^t R(s_t) \mid s_0 = s,\ \pi \right]
+$$
+
+Ou seja:
+
+- começamos no estado $s$,  
+- seguimos a política $\pi$,  
+- acumulamos recompensas descontadas,  
+- e calculamos o valor esperado.
+
+---
+
+## 4. Função de valor ótima
+
+A função de valor ótima é:
+
+$$
+V^*(s) = \max_{\pi} V^\pi(s)
+$$
+
+Ela representa:
+
+> O valor máximo possível que podemos obter ao começar no estado $s$ e agir de forma ótima.
+
+---
+
+## 5. Relação entre política e valor
+
+A política ótima é aquela que escolhe ações que maximizam o valor esperado:
+
+$$
+\pi^*(s) = \arg\max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+Essa expressão diz:
+
+- para cada estado $s$,  
+- escolha a ação $a$ que leva aos estados futuros mais valiosos,  
+- considerando transições probabilísticas,  
+- recompensas imediatas,  
+- e o fator de desconto $\gamma$.
+
+---
+
+## 6. Exemplo intuitivo
+
+Considere o grid da Parte 1:
+
+- estado com recompensa $+1$ → valor alto  
+- estado com punição $-1$ → valor baixo  
+- estados próximos ao $+1$ → valor intermediário  
+- estados próximos ao $-1$ → valor negativo  
+
+A política ótima:
+
+- move o agente para estados com maior valor esperado,  
+- evitando estados com valor negativo.
+
+---
+
+## 7. Por que precisamos da função de valor?
+
+Porque ela permite:
+
+- comparar estados,  
+- avaliar políticas,  
+- formular Equações de Bellman,  
+- executar Value Iteration,  
+- resolver MDPs de forma eficiente.
+
+Sem a função de valor, não há como medir “quão bom” é um estado.
+
+---
+
+## 8. Conclusão da Parte 5
+
+Nesta parte aprendemos:
+
+- o que é uma política,  
+- o que é uma política ótima,  
+- como definir a função de valor,  
+- como definir a função de valor ótima,  
+- como políticas e valores se relacionam,  
+- como isso prepara o terreno para as Equações de Bellman.
+
+Com isso, concluímos a Parte 5.
+
+Na Parte 6 estudaremos:
+
+- a intuição das Equações de Bellman,  
+- como valores são propagados pelo ambiente.
+
+
+
+
+<br><br>
+
+
+
+<a id="lecture17_parte6"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 17 — Parte 6  
+Equações de Bellman — Intuição  
+=============================
+
+Nesta parte iniciamos a transição entre a definição de políticas e funções de valor (Parte 5) e o algoritmo de **Value Iteration** (Lecture 18).  
+O objetivo é entender **a intuição por trás das Equações de Bellman**, antes de formalizá-las matematicamente.
+
+---
+
+## 1. O problema: como propagar recompensas?
+
+Até agora sabemos:
+
+- o agente recebe recompensas em estados específicos,  
+- recompensas podem ser positivas ou negativas,  
+- recompensas são descontadas por $\gamma$,  
+- queremos calcular o valor de cada estado.
+
+Mas surge a pergunta central:
+
+> **Como transmitir a qualidade de um estado terminal para todos os estados que levam até ele?**
+
+Essa é a função das Equações de Bellman.
+
+---
+
+## 2. Intuição básica
+
+Considere o grid da Lecture 17:
+
+- O estado com recompensa $+1$ é excelente.  
+- O estado com recompensa $-1$ é ruim.  
+- Estados próximos ao $+1$ devem ter valor alto.  
+- Estados próximos ao $-1$ devem ter valor baixo.
+
+A pergunta é:
+
+> **Como calcular esses valores intermediários?**
+
+A resposta é:
+
+> **Propagando valores dos estados futuros para os estados atuais.**
+
+---
+
+## 3. A ideia central de Bellman
+
+A Equação de Bellman captura a seguinte ideia:
+
+> **O valor de um estado é igual à recompensa imediata  
+> mais o valor esperado dos estados futuros.**
+
+Ou seja:
+
+- se o estado é bom, seu valor é alto;  
+- se o estado leva a estados bons, seu valor também é alto;  
+- se o estado leva a estados ruins, seu valor é baixo.
+
+Bellman transforma essa intuição em uma equação recursiva.
+
+---
+
+## 4. Exemplo intuitivo no grid
+
+Imagine:
+
+- $s_G$ é o estado com recompensa $+1$,  
+- $s_B$ é o estado com recompensa $-1$,  
+- $s$ é um estado vizinho de $s_G$.
+
+O valor de $s$ deve ser aproximadamente:
+
+$$
+V(s) \approx \gamma \cdot V(s_G)
+$$
+
+porque:
+
+- a recompensa imediata é zero,  
+- mas o estado leva rapidamente ao estado bom,  
+- e o valor é descontado por $\gamma$.
+
+Se $\gamma = 0.9$, então:
+
+$$
+V(s) \approx 0.9 \cdot 1 = 0.9
+$$
+
+Esse valor será propagado para estados mais distantes:
+
+$$
+V(s') \approx \gamma \cdot V(s) = 0.9 \cdot 0.9 = 0.81
+$$
+
+E assim por diante.
+
+---
+
+## 5. Propagação como “ondas de valor”
+
+A professora descreve Bellman como:
+
+> **Uma onda de valores que se espalha pelo ambiente.**
+
+Essa onda:
+
+- começa nos estados terminais,  
+- se espalha para estados vizinhos,  
+- continua se espalhando até preencher todo o grid.
+
+Essa propagação é exatamente o que **Value Iteration** implementa.
+
+---
+
+## 6. Por que Bellman é essencial?
+
+Porque ele permite:
+
+- calcular valores ótimos,  
+- comparar estados,  
+- derivar políticas ótimas,  
+- resolver MDPs de forma exata.
+
+Bellman é a base matemática de todo RL moderno.
+
+---
+
+## 7. Conclusão da Parte 6
+
+Nesta parte entendemos:
+
+- a intuição das Equações de Bellman,  
+- como valores são propagados pelo ambiente,  
+- como estados bons influenciam estados vizinhos,  
+- como isso prepara o terreno para a formulação matemática completa.
+
+Na próxima parte estudaremos:
+
+- **Bellman Optimality**,  
+- a forma matemática completa da equação,  
+- como ela define $V^*(s)$.
+
+
+
+
+<br><br>
+
+
+
+<a id="lecture17_parte7"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 17 — Parte 7  
+Bellman Optimality — Propagação de Valores  
+=============================
+
+Na Parte 6 entendemos a **intuição** das Equações de Bellman:  
+o valor de um estado depende da recompensa imediata e dos valores dos estados futuros.
+
+Agora formalizamos essa ideia matematicamente e introduzimos a **Equação de Bellman Ótima**, que define o valor ótimo de cada estado.
+
+---
+
+## 1. Relembrando a intuição
+
+A professora explicou que:
+
+- estados com recompensa positiva irradiam valores altos,  
+- estados com punição irradiam valores baixos,  
+- estados intermediários recebem valores proporcionais à proximidade dos estados bons ou ruins.
+
+Bellman captura essa propagação de forma exata.
+
+---
+
+## 2. Bellman para uma política fixa
+
+Se seguimos uma política $\pi$, o valor de um estado é:
+
+$$
+V^\pi(s) = R(s) + \gamma \sum_{s'} T(s,\pi(s),s')\, V^\pi(s')
+$$
+
+Essa equação diz:
+
+- receba a recompensa imediata $R(s)$,  
+- depois considere o valor dos estados futuros,  
+- ponderados pelas probabilidades de transição.
+
+---
+
+## 3. Bellman Optimality — Forma Completa
+
+Para encontrar a política ótima, precisamos da função de valor ótima:
+
+$$
+V^*(s)
+$$
+
+Ela é definida pela **Equação de Bellman Ótima**:
+
+$$
+V^*(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+Essa equação expressa:
+
+- para cada estado $s$,  
+- considere todas as ações possíveis $a$,  
+- calcule o valor esperado de cada ação,  
+- escolha a ação que maximiza esse valor.
+
+---
+
+## 4. Interpretação da Equação Ótima
+
+A Equação de Bellman Ótima é um **sistema de equações acopladas**:
+
+- cada estado depende dos valores dos estados futuros,  
+- que dependem dos valores dos estados seguintes,  
+- e assim por diante.
+
+O valor ótimo é o **ponto fixo** dessa relação recursiva.
+
+---
+
+## 5. Relação entre Bellman e política ótima
+
+A política ótima é:
+
+$$
+\pi^*(s) = \arg\max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+Ou seja:
+
+> **A melhor ação é aquela que leva ao maior valor futuro esperado.**
+
+---
+
+## 6. Exemplo intuitivo no grid
+
+Considere o grid da Lecture 17:
+
+- O estado com recompensa $+1$ tem valor alto.  
+- O estado com recompensa $-1$ tem valor baixo.  
+- Estados próximos ao $+1$ têm valores intermediários.  
+- Estados próximos ao $-1$ têm valores negativos.
+
+Bellman:
+
+- pega o valor dos estados terminais,  
+- propaga para os vizinhos,  
+- propaga para os vizinhos dos vizinhos,  
+- até preencher todo o grid.
+
+Essa propagação é exatamente o que **Value Iteration** implementa.
+
+---
+
+## 7. Por que Bellman Optimality é tão importante?
+
+Porque ele permite:
+
+- resolver MDPs de forma exata,  
+- calcular valores ótimos,  
+- derivar políticas ótimas,  
+- fundamentar algoritmos como Value Iteration e Policy Iteration,  
+- preparar o terreno para Q-Learning (Lecture 19).
+
+Bellman é o coração matemático do RL.
+
+---
+
+## 8. Conclusão da Parte 7
+
+Nesta parte aprendemos:
+
+- a forma completa da Equação de Bellman Ótima,  
+- como ela define $V^*(s)$,  
+- como derivar a política ótima $\pi^*(s)$,  
+- como valores são propagados pelo ambiente,  
+- como Bellman prepara o terreno para **Value Iteration**.
+
+Na próxima parte estudaremos:
+
+- como Bellman leva diretamente ao algoritmo de Value Iteration,  
+- e como isso fecha a Lecture 17 e abre a Lecture 18.
+
+
+
+
+<br><br>
+
+
+
+<a id="lecture17_parte8"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 17 — Parte 8  
+Preparação para Value Iteration  
+=============================
+
+Nesta parte concluímos a Lecture 17 conectando as **Equações de Bellman** ao algoritmo que será estudado na Lecture 18: **Value Iteration**.
+
+O objetivo aqui é entender:
+
+1. Por que Bellman define um sistema de equações acopladas.  
+2. Por que esse sistema pode ser resolvido iterativamente.  
+3. Como Bellman leva naturalmente ao algoritmo de Value Iteration.  
+4. Como isso fecha a Lecture 17 e abre a Lecture 18.
+
+---
+
+## 1. Bellman como um sistema de equações
+
+A Equação de Bellman Ótima:
+
+$$
+V^*(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+é uma **equação recursiva**.
+
+Isso significa que:
+
+- o valor de cada estado depende dos valores dos estados futuros,  
+- que dependem dos valores dos estados seguintes,  
+- e assim por diante.
+
+Portanto:
+
+> **Resolver Bellman significa resolver um sistema de equações acopladas.**
+
+---
+
+## 2. Por que não resolvemos Bellman diretamente?
+
+Resolver Bellman diretamente exigiria:
+
+- montar um sistema linear (ou não linear),  
+- resolver simultaneamente todas as equações,  
+- lidar com dependências complexas entre estados.
+
+Isso é inviável para:
+
+- ambientes grandes,  
+- ambientes contínuos,  
+- ambientes com milhares ou milhões de estados.
+
+Por isso, usamos uma abordagem **iterativa**.
+
+---
+
+## 3. A ideia da solução iterativa
+
+A professora explica que:
+
+> **Podemos começar com uma estimativa inicial para $V(s)$  
+> e aplicar Bellman repetidamente até que os valores convirjam.**
+
+Essa ideia é a base do algoritmo de **Value Iteration**.
+
+Cada aplicação de Bellman:
+
+- melhora a estimativa de $V(s)$,  
+- propaga valores dos estados futuros para os estados atuais,  
+- aproxima o valor ótimo.
+
+---
+
+## 4. Convergência garantida
+
+A razão pela qual essa abordagem funciona é:
+
+- Bellman é uma **contração** matemática,  
+- o fator de desconto $\gamma$ garante que a influência dos estados futuros diminui,  
+- a atualização converge para um **ponto fixo**,  
+- esse ponto fixo é exatamente $V^*(s)$.
+
+Portanto:
+
+> **Aplicar Bellman repetidamente sempre converge para o valor ótimo.**
+
+---
+
+## 5. Intuição final antes do algoritmo
+
+A professora usa o grid como exemplo:
+
+- Começamos com todos os valores iguais (ex.: zero).  
+- Aplicamos Bellman.  
+- Os estados terminais propagam seus valores.  
+- Estados vizinhos recebem valores intermediários.  
+- A “onda de valor” se espalha pelo ambiente.  
+- Eventualmente, todos os estados estabilizam.
+
+Essa estabilização é:
+
+$$
+V^*(s)
+$$
+
+E, uma vez que temos $V^*(s)$, podemos extrair:
+
+$$
+\pi^*(s)
+$$
+
+a política ótima.
+
+---
+
+## 6. Conexão direta com a Lecture 18
+
+A professora encerra a Lecture 17 dizendo:
+
+> “Com base nessa discussão, seremos capazes de formular o algoritmo de iteração de valores que pode resolver esses processos de decisão de Markov.”
+
+Ou seja:
+
+- Lecture 17 introduz Bellman,  
+- Lecture 18 implementa Bellman iterativamente,  
+- **Value Iteration é a aplicação prática de Bellman Optimality**.
+
+---
+
+## 7. Conclusão da Parte 8
+
+Nesta parte entendemos:
+
+- por que Bellman define um sistema de equações acopladas,  
+- por que esse sistema pode ser resolvido iterativamente,  
+- como Bellman leva diretamente ao algoritmo de Value Iteration,  
+- como isso fecha a Lecture 17 e abre a Lecture 18.
+
+Com isso, concluímos a Lecture 17.
+
+
+
+
+<br><br>
+
+
+
+<a id="lecture18_parte1"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 18 — Parte 1  
+Bellman Optimality — Revisão Formal  
+=============================
+
+Nesta lecture começamos a aplicar, de forma operacional, tudo o que foi desenvolvido na Lecture 17.  
+O objetivo desta primeira parte é **formalizar completamente** a Equação de Bellman Ótima e preparar o terreno para o algoritmo de **Value Iteration**.
+
+---
+
+## 1. Relembrando o objetivo
+
+Queremos resolver um MDP:
+
+$$
+(S,\ A,\ T,\ R)
+$$
+
+Encontrando:
+
+- a **função de valor ótima** $V^*(s)$  
+- a **política ótima** $\pi^*(s)$  
+
+que maximizam a utilidade esperada ao longo do tempo.
+
+---
+
+## 2. A função de valor ótima
+
+A função de valor ótima é definida como:
+
+$$
+V^*(s) = \max_{\pi} V^\pi(s)
+$$
+
+onde:
+
+$$
+V^\pi(s) = \mathbb{E}\left[ \sum_{t=0}^{\infty} \gamma^t R(s_t) \mid s_0 = s,\ \pi \right]
+$$
+
+Ou seja:
+
+> $V^*(s)$ é o valor máximo possível que podemos obter ao começar no estado $s$ e agir de forma ótima.
+
+---
+
+## 3. A Equação de Bellman Ótima
+
+A Equação de Bellman Ótima formaliza a relação recursiva entre estados:
+
+$$
+V^*(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+Essa equação expressa:
+
+- a recompensa imediata $R(s,a)$,  
+- mais o valor esperado dos estados futuros,  
+- ponderado pelas probabilidades de transição,  
+- escolhendo a ação que maximiza esse valor.
+
+---
+
+## 4. Interpretação geométrica e probabilística
+
+A Equação de Bellman Ótima combina:
+
+### **Geometria**
+- valores altos irradiam dos estados bons,  
+- valores baixos irradiam dos estados ruins,  
+- estados intermediários recebem valores proporcionais à proximidade dos estados terminais.
+
+### **Probabilidade**
+- cada ação leva a múltiplos estados possíveis,  
+- cada estado futuro contribui proporcionalmente à sua probabilidade $T(s,a,s')$.
+
+Bellman captura essa propagação de forma exata.
+
+---
+
+## 5. Bellman como operador
+
+Podemos definir o **operador de Bellman**:
+
+$$
+(BV)(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V(s') \right]
+$$
+
+A função de valor ótima é o **ponto fixo** desse operador:
+
+$$
+V^* = BV^*
+$$
+
+Essa visão é essencial para entender a convergência do Value Iteration.
+
+---
+
+## 6. Por que revisar Bellman antes do algoritmo?
+
+Porque Value Iteration nada mais é do que:
+
+> Aplicar o operador de Bellman repetidamente  
+> até que a função de valor convirja para o ponto fixo $V^*$.
+
+Ou seja:
+
+$$
+V_{k+1}(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V_k(s') \right]
+$$
+
+Essa é a forma iterativa da Equação de Bellman Ótima.
+
+---
+
+## 7. Conclusão da Parte 1
+
+Nesta parte revisamos:
+
+- a definição formal de $V^*(s)$,  
+- a Equação de Bellman Ótima,  
+- a interpretação geométrica e probabilística,  
+- o operador de Bellman e seu ponto fixo,  
+- a conexão direta entre Bellman e Value Iteration.
+
+Na próxima parte estudaremos:
+
+- a forma iterativa de Bellman,  
+- o algoritmo completo de **Value Iteration**,  
+- e por que ele sempre converge para $V^*(s)$.
+
+
+
+
+<br><br>
+
+
+
+<a id="lecture18_parte2"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 18 — Parte 2  
+Value Iteration — Atualização Recursiva  
+=============================
+
+Nesta parte introduzimos o algoritmo central da Lecture 18: **Value Iteration**.  
+Ele é a implementação prática da Equação de Bellman Ótima e permite resolver MDPs de forma eficiente, mesmo quando o número de estados é grande.
+
+---
+
+## 1. Ideia central do Value Iteration
+
+A Equação de Bellman Ótima define $V^*(s)$ como:
+
+$$
+V^*(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+Value Iteration aplica essa equação **iterativamente**, aproximando $V^*(s)$ a cada passo.
+
+A atualização é:
+
+$$
+V_{k+1}(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V_k(s') \right]
+$$
+
+Ou seja:
+
+> Começamos com uma estimativa inicial $V_0(s)$  
+> e aplicamos Bellman repetidamente até que os valores convirjam.
+
+---
+
+## 2. Por que isso funciona?
+
+Porque o operador de Bellman:
+
+$$
+(BV)(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V(s') \right]
+$$
+
+é uma **contração** quando $0 < \gamma < 1$.
+
+Isso significa:
+
+- cada aplicação de Bellman aproxima $V(s)$ do ponto fixo,  
+- o ponto fixo é exatamente $V^*(s)$,  
+- portanto, a sequência $V_0, V_1, V_2, \dots$ converge para $V^*$.
+
+---
+
+## 3. Escolha da inicialização
+
+A inicialização mais comum é:
+
+$$
+V_0(s) = 0
+$$
+
+Mas outras escolhas são possíveis:
+
+- valores aleatórios,  
+- aproximações heurísticas,  
+- estimativas baseadas na estrutura do ambiente.
+
+A inicialização não afeta o valor final — apenas a velocidade de convergência.
+
+---
+
+## 4. Atualização estado por estado
+
+Para cada estado $s$:
+
+1. Consideramos todas as ações $a$.  
+2. Para cada ação, calculamos:
+
+$$
+Q(s,a) = R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V_k(s')
+$$
+
+3. Escolhemos a melhor ação:
+
+$$
+V_{k+1}(s) = \max_a Q(s,a)
+$$
+
+Essa é a essência do Value Iteration.
+
+---
+
+## 5. Critério de parada
+
+Value Iteration para quando:
+
+$$
+\max_s |V_{k+1}(s) - V_k(s)| < \varepsilon
+$$
+
+onde $\varepsilon$ é um limiar pequeno (ex.: $10^{-3}$).
+
+Isso significa:
+
+> Os valores mudam tão pouco que já estão próximos de $V^*(s)$.
+
+---
+
+## 6. Extração da política ótima
+
+Depois que $V^*(s)$ converge, extraímos a política ótima:
+
+$$
+\pi^*(s) = \arg\max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+Ou seja:
+
+> A melhor ação é aquela que leva aos estados futuros mais valiosos.
+
+---
+
+## 7. Intuição geométrica
+
+Value Iteration funciona como:
+
+> **Uma onda de valores que se propaga pelo ambiente.**
+
+- Estados terminais definem valores iniciais.  
+- Estados vizinhos recebem valores intermediários.  
+- A onda se espalha até preencher todo o grid.  
+- Quando a onda estabiliza, temos $V^*(s)$.
+
+---
+
+## 8. Conclusão da Parte 2
+
+Nesta parte aprendemos:
+
+- a forma iterativa da Equação de Bellman Ótima,  
+- como Value Iteration atualiza $V(s)$ recursivamente,  
+- por que o operador de Bellman garante convergência,  
+- como extrair a política ótima após a convergência.
+
+Na próxima parte estudaremos:
+
+- a prova de convergência,  
+- a propriedade de contração,  
+- e por que Value Iteration sempre encontra $V^*(s)$.
+
+
+
+
+<br><br>
+
+
+
+<a id="lecture18_parte3"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 18 — Parte 3  
+Convergência — Contração e Ponto Fixo  
+=============================
+
+Nesta parte entendemos **por que** o algoritmo de Value Iteration sempre converge para a função de valor ótima $V^*(s)$.  
+A chave para essa garantia é a propriedade de **contração** do operador de Bellman.
+
+---
+
+## 1. O operador de Bellman
+
+Definimos o operador de Bellman como:
+
+$$
+(BV)(s) = \max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V(s') \right]
+$$
+
+Esse operador transforma uma função de valor $V$ em uma nova função de valor $BV$.
+
+A função de valor ótima é o **ponto fixo** desse operador:
+
+$$
+V^* = BV^*
+$$
+
+Ou seja:
+
+> Aplicar Bellman sobre $V^*$ devolve o próprio $V^*$.
+
+---
+
+## 2. O que significa ser uma contração?
+
+Um operador $B$ é uma **contração** se:
+
+$$
+\| BV - BU \|_\infty \le \gamma \| V - U \|_\infty
+$$
+
+para qualquer par de funções de valor $V$ e $U$.
+
+Aqui:
+
+- $\| \cdot \|_\infty$ é a norma máximo,  
+- $0 < \gamma < 1$ é o fator de desconto.
+
+Essa desigualdade significa:
+
+> Bellman aproxima funções de valor umas das outras, reduzindo a distância entre elas por um fator $\gamma$.
+
+---
+
+## 3. Consequência da contração: convergência garantida
+
+Se $B$ é uma contração, então:
+
+- existe um único ponto fixo $V^*$,  
+- qualquer sequência gerada por $V_{k+1} = BV_k$ converge para esse ponto fixo,  
+- a convergência é geométrica (rápida).
+
+Portanto:
+
+$$
+V_k \longrightarrow V^*
+$$
+
+independentemente da inicialização $V_0$.
+
+---
+
+## 4. Prova intuitiva da contração
+
+Considere dois valores $V$ e $U$.
+
+Para qualquer estado $s$:
+
+$$
+(BV)(s) - (BU)(s)
+$$
+
+envolve:
+
+- a mesma recompensa imediata $R(s,a)$,  
+- a mesma soma ponderada de transições,  
+- apenas os valores futuros mudam.
+
+Como o fator de desconto $\gamma$ multiplica todos os valores futuros:
+
+$$
+| (BV)(s) - (BU)(s) | \le \gamma \max_{s'} | V(s') - U(s') |
+$$
+
+Portanto:
+
+$$
+\| BV - BU \|_\infty \le \gamma \| V - U \|_\infty
+$$
+
+Bellman é uma contração.
+
+---
+
+## 5. Convergência do Value Iteration
+
+Value Iteration aplica Bellman repetidamente:
+
+$$
+V_{k+1}(s) = (BV_k)(s)
+$$
+
+Como $B$ é uma contração:
+
+$$
+\| V_{k+1} - V^* \|_\infty \le \gamma \| V_k - V^* \|_\infty
+$$
+
+Isso significa:
+
+- cada iteração aproxima $V_k$ de $V^*$,  
+- a distância diminui por um fator $\gamma$,  
+- a convergência é garantida e rápida.
+
+---
+
+## 6. Critério de parada revisitado
+
+O critério:
+
+$$
+\max_s |V_{k+1}(s) - V_k(s)| < \varepsilon
+$$
+
+é uma forma prática de detectar que:
+
+> A sequência já está suficientemente próxima do ponto fixo $V^*$.
+
+---
+
+## 7. Intuição geométrica
+
+A contração garante que:
+
+- a “onda de valor” não oscila,  
+- não diverge,  
+- não explode,  
+- sempre se estabiliza.
+
+O valor ótimo emerge como o único estado estável da dinâmica de Bellman.
+
+---
+
+## 8. Conclusão da Parte 3
+
+Nesta parte entendemos:
+
+- o operador de Bellman,  
+- a propriedade de contração,  
+- o ponto fixo $V^*$,  
+- por que Value Iteration sempre converge,  
+- por que a convergência é rápida e independente da inicialização.
+
+Na próxima parte estudaremos:
+
+- como extrair a política ótima $\pi^*(s)$  
+- a partir da função de valor ótima $V^*(s)$.
+
+
+
+
+<br><br>
+
+
+
+<a id="lecture18_parte4"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 18 — Parte 4  
+Extração da Política Ótima  
+=============================
+
+Nesta parte aprendemos como **extrair a política ótima** depois que o algoritmo de **Value Iteration** converge para a função de valor ótima $V^*(s)$.
+
+Até agora, Value Iteration nos deu:
+
+$$
+V^*(s)
+$$
+
+Mas nosso objetivo final ao resolver um MDP é:
+
+> **Encontrar a ação ótima em cada estado.**
+
+Ou seja, construir a política ótima $\pi^*(s)$.
+
+---
+
+## 1. A política ótima depende de $V^*(s)$
+
+Depois que temos $V^*(s)$, a política ótima é definida como:
+
+$$
+\pi^*(s) = \arg\max_{a} \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+Essa expressão diz:
+
+- para cada estado $s$,  
+- considere todas as ações possíveis $a$,  
+- calcule o valor esperado de cada ação,  
+- escolha a ação que maximiza esse valor.
+
+---
+
+## 2. Intuição: escolher a melhor ação olhando para o futuro
+
+A política ótima não olha apenas para:
+
+- a recompensa imediata $R(s,a)$.
+
+Ela também considera:
+
+- os estados futuros,  
+- seus valores $V^*(s')$,  
+- e as probabilidades de transição $T(s,a,s')$.
+
+Ou seja:
+
+> **A melhor ação é aquela que leva aos estados futuros mais valiosos.**
+
+---
+
+## 3. Relação entre $V^*(s)$ e $Q^*(s,a)$
+
+Podemos definir o valor ótimo de uma ação:
+
+$$
+Q^*(s,a) = R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s')
+$$
+
+Então:
+
+$$
+V^*(s) = \max_a Q^*(s,a)
+$$
+
+E a política ótima é simplesmente:
+
+$$
+\pi^*(s) = \arg\max_a Q^*(s,a)
+$$
+
+Essa relação será essencial na Lecture 19, quando introduzirmos **Q-Learning**.
+
+---
+
+## 4. Processo de extração da política
+
+Para cada estado $s$:
+
+1. Para cada ação $a$, compute:
+
+$$
+Q(s,a) = R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s')
+$$
+
+2. Escolha a ação com maior valor:
+
+$$
+\pi^*(s) = \arg\max_a Q(s,a)
+$$
+
+Esse processo é simples, direto e eficiente.
+
+---
+
+## 5. Exemplo intuitivo no grid
+
+Considere o grid da Lecture 17:
+
+- estados com $+1$ irradiam valores altos,  
+- estados com $-1$ irradiam valores baixos.
+
+Depois que $V^*(s)$ converge:
+
+- estados próximos ao $+1$ terão ações que os aproximam do objetivo,  
+- estados próximos ao $-1$ terão ações que os afastam da punição.
+
+A política ótima emerge naturalmente da estrutura dos valores.
+
+---
+
+## 6. Por que a extração da política é separada da iteração de valores?
+
+Porque:
+
+- Value Iteration calcula **valores**,  
+- e só depois extraímos **ações**.
+
+Separar essas duas etapas torna o algoritmo:
+
+- mais simples,  
+- mais modular,  
+- mais eficiente,  
+- mais fácil de implementar.
+
+---
+
+## 7. Conclusão da Parte 4
+
+Nesta parte aprendemos:
+
+- como extrair a política ótima a partir de $V^*(s)$,  
+- a relação entre $V^*(s)$ e $Q^*(s,a)$,  
+- por que a política ótima escolhe ações que maximizam valores futuros,  
+- como essa etapa completa o processo de Value Iteration.
+
+Na próxima parte estudaremos:
+
+- exemplos concretos em **Gridworld**,  
+- visualização da propagação de valores,  
+- e como a política ótima emerge no ambiente.
+
+
+
+<br><br>
+
+
+
+<a id="lecture18_parte5"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 18 — Parte 5  
+Exemplos em Gridworld — Propagação de Valores  
+=============================
+
+Nesta parte visualizamos como o algoritmo de **Value Iteration** funciona na prática, usando o ambiente clássico **Gridworld**.  
+O objetivo é entender como:
+
+- valores são propagados pelo grid,  
+- estados bons irradiam valores positivos,  
+- estados ruins irradiam valores negativos,  
+- a política ótima emerge naturalmente após a convergência.
+
+---
+
+## 1. O ambiente Gridworld
+
+Considere um grid simples:
+
+- células vazias → recompensa $0$  
+- objetivo → recompensa $+1$  
+- perigo → recompensa $-1$  
+- paredes → estados inacessíveis  
+
+O agente pode se mover:
+
+$$
+A = \{\text{cima},\ \text{baixo},\ \text{esquerda},\ \text{direita}\}
+$$
+
+E o movimento é **estocástico**:
+
+- 80% de chance de ir na direção desejada,  
+- 10% de chance de desviar para a esquerda,  
+- 10% de chance de desviar para a direita.
+
+---
+
+## 2. Inicialização dos valores
+
+Começamos com:
+
+$$
+V_0(s) = 0
+$$
+
+para todos os estados não terminais.
+
+Os estados terminais já possuem:
+
+- $V(s_G) = +1$  
+- $V(s_B) = -1$
+
+---
+
+## 3. Primeira iteração de Bellman
+
+Para cada estado $s$:
+
+$$
+V_1(s) = \max_a \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V_0(s') \right]
+$$
+
+Como $V_0(s') = 0$ para todos os estados não terminais:
+
+- estados vizinhos do objetivo recebem valores positivos,  
+- estados vizinhos do perigo recebem valores negativos.
+
+A “onda de valor” começa a se formar.
+
+---
+
+## 4. Propagação ao longo das iterações
+
+A cada iteração:
+
+$$
+V_{k+1}(s) = \max_a \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V_k(s') \right]
+$$
+
+Os valores:
+
+- aumentam conforme se aproximam do objetivo,  
+- diminuem conforme se aproximam do perigo,  
+- estabilizam quando a onda de valor atinge todo o grid.
+
+---
+
+## 5. Visualização da propagação
+
+A professora mostra que:
+
+- estados próximos ao $+1$ recebem valores como $0.9$, $0.81$, $0.72$, …  
+- estados próximos ao $-1$ recebem valores como $-0.9$, $-0.81$, $-0.72$, …  
+
+Com $\gamma = 0.9$:
+
+$$
+V(s_{\text{vizinho do objetivo}}) \approx 0.9 \cdot 1 = 0.9
+$$
+
+$$
+V(s_{\text{vizinho do perigo}}) \approx 0.9 \cdot (-1) = -0.9
+$$
+
+Esses valores continuam se propagando até estabilizar.
+
+---
+
+## 6. Emergência da política ótima
+
+Depois que $V^*(s)$ converge, extraímos a política:
+
+$$
+\pi^*(s) = \arg\max_a \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s') \right]
+$$
+
+No grid:
+
+- estados com valor alto apontam para o objetivo,  
+- estados com valor baixo apontam para longe do perigo,  
+- estados neutros escolhem caminhos que maximizam o valor futuro.
+
+A política ótima emerge naturalmente da estrutura dos valores.
+
+---
+
+## 7. Intuição final
+
+Gridworld mostra claramente que:
+
+> **Value Iteration é um processo de difusão de valores.**
+
+- estados terminais são fontes de valor,  
+- o valor se espalha pelo ambiente,  
+- a política ótima é simplesmente seguir o gradiente de valor.
+
+---
+
+## 8. Conclusão da Parte 5
+
+Nesta parte entendemos:
+
+- como valores são propagados no Gridworld,  
+- como a estrutura do ambiente influencia $V^*(s)$,  
+- como a política ótima emerge após a convergência,  
+- como Value Iteration funciona visualmente e intuitivamente.
+
+Na próxima parte estudaremos:
+
+- a conexão entre Value Iteration, planejamento e controle,  
+- e como esses conceitos se generalizam para ambientes maiores.
+
+
+
+<br><br>
+
+
+
+<a id="lecture18_parte6"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 18 — Parte 6  
+Conexão com Planejamento e Controle  
+=============================
+
+Nesta parte concluímos a Lecture 18 conectando o algoritmo de **Value Iteration** com conceitos mais amplos de **planejamento**, **controle**, e **tomada de decisão sequencial**.  
+O objetivo é entender como MDPs e Value Iteration se encaixam em uma visão mais geral de agentes inteligentes.
+
+---
+
+## 1. Value Iteration como planejamento
+
+A professora explica que:
+
+> **Value Iteration é um algoritmo de planejamento.**
+
+Ou seja:
+
+- ele calcula antecipadamente o valor de cada estado,  
+- antes de o agente começar a agir no ambiente,  
+- usando conhecimento completo das transições $T(s,a,s')$ e recompensas $R(s,a,s')$.
+
+Isso é chamado de **planejamento offline**.
+
+---
+
+## 2. Planejamento vs. Aprendizado
+
+Value Iteration assume:
+
+- o ambiente é totalmente conhecido,  
+- todas as transições são conhecidas,  
+- todas as recompensas são conhecidas.
+
+Mas em muitos problemas reais:
+
+- o agente não conhece o ambiente,  
+- não sabe as probabilidades de transição,  
+- não sabe as recompensas.
+
+Nesses casos, o agente deve **aprender** interagindo com o ambiente.
+
+Essa transição do planejamento para o aprendizado é o tema da Lecture 19.
+
+---
+
+## 3. Conexão com controle
+
+A professora destaca que:
+
+> Resolver um MDP é resolver um problema de **controle ótimo**.
+
+O agente deve:
+
+- escolher ações,  
+- prever consequências,  
+- maximizar recompensas futuras.
+
+Isso é exatamente o que sistemas de controle fazem:
+
+- robôs,  
+- drones,  
+- veículos autônomos,  
+- sistemas industriais.
+
+MDPs fornecem uma base matemática para esses sistemas.
+
+---
+
+## 4. Value Iteration como solução de controle ótimo
+
+Value Iteration encontra:
+
+- a função de valor ótima $V^*(s)$,  
+- a política ótima $\pi^*(s)$.
+
+Essa política é:
+
+> **A regra de controle ótima para o agente.**
+
+Ela diz:
+
+- qual ação tomar em cada estado,  
+- para maximizar a utilidade esperada,  
+- levando em conta incerteza e estocasticidade.
+
+---
+
+## 5. Planejamento em ambientes estocásticos
+
+MDPs são especialmente importantes porque:
+
+- o ambiente é incerto,  
+- ações têm resultados probabilísticos,  
+- o agente deve considerar múltiplos futuros possíveis.
+
+Value Iteration incorpora essa incerteza diretamente:
+
+$$
+\gamma \sum_{s'} T(s,a,s')\, V^*(s')
+$$
+
+Essa soma ponderada é o coração do planejamento estocástico.
+
+---
+
+## 6. Conexão com agentes reais
+
+A professora mostra que MDPs e Value Iteration aparecem em:
+
+- robótica (navegação, manipulação),  
+- economia (decisões sequenciais),  
+- marketing (interação com clientes),  
+- jogos (IA de adversários),  
+- logística (planejamento de rotas),  
+- sistemas de recomendação (decisões sequenciais).
+
+Em todos esses casos:
+
+> O agente deve planejar ações levando em conta incerteza e recompensas futuras.
+
+---
+
+## 7. Value Iteration como base para RL
+
+A professora encerra explicando:
+
+- Value Iteration é a solução exata quando o ambiente é conhecido.  
+- Reinforcement Learning é a solução aproximada quando o ambiente é desconhecido.  
+- RL aprende uma aproximação de $V^*(s)$ ou $Q^*(s,a)$ interagindo com o ambiente.  
+- Q-Learning (Lecture 19) é a versão “aprendida” de Value Iteration.
+
+Ou seja:
+
+> **Value Iteration é o modelo teórico que inspira os algoritmos de RL.**
+
+---
+
+## 8. Conclusão da Parte 6
+
+Nesta parte entendemos:
+
+- como Value Iteration é um algoritmo de planejamento,  
+- como MDPs se conectam ao controle ótimo,  
+- como planejamento lida com incerteza,  
+- como Value Iteration é a base conceitual do RL,  
+- como isso prepara o terreno para Q-Learning.
+
+Com isso, concluímos a Lecture 18.
+
+Na Lecture 19 estudaremos:
+
+- Q-Learning,  
+- aprendizado de valores sem conhecer o ambiente,  
+- exploração vs. exploração,  
+- e como RL generaliza Value Iteration para ambientes reais.
+
+
+
+<br><br>
+
+
+
+<a id="lecture19_parte1"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 19 — Parte 1  
+Do Planejamento ao Aprendizado — Motivação para Q-Learning  
+=============================
+
+Nesta lecture iniciamos a transição entre:
+
+- **MDPs com modelo conhecido** (Lecture 17–18),  
+- **Reinforcement Learning sem modelo** (Lecture 19).
+
+O objetivo desta primeira parte é entender **por que precisamos de RL** e **por que Value Iteration não é suficiente** em ambientes reais.
+
+---
+
+## 1. O problema com Value Iteration
+
+Value Iteration resolve MDPs quando conhecemos:
+
+- todas as transições $T(s,a,s')$,  
+- todas as recompensas $R(s,a,s')$,  
+- todos os estados e ações.
+
+Mas na prática:
+
+> **O agente não conhece o ambiente.**
+
+Ele deve aprender:
+
+- quais ações são boas,  
+- quais ações são ruins,  
+- quais transições são prováveis,  
+- quais recompensas existem.
+
+Isso exige **exploração**.
+
+---
+
+## 2. Exemplos reais onde o modelo é desconhecido
+
+### 2.1 Robótica  
+O robô não sabe:
+
+- como o atrito afeta o movimento,  
+- como objetos respondem ao toque,  
+- como o ambiente muda com o tempo.
+
+### 2.2 Marketing  
+A empresa não sabe:
+
+- como o cliente reagirá a cada ação,  
+- qual sequência de ações maximiza conversão.
+
+### 2.3 Jogos  
+O agente não sabe:
+
+- como o adversário se comporta,  
+- quais ações levam à vitória.
+
+### 2.4 Navegação  
+O agente não sabe:
+
+- a topologia completa do ambiente,  
+- onde estão obstáculos ou perigos.
+
+Em todos esses casos:
+
+> **O agente deve aprender interagindo com o ambiente.**
+
+---
+
+## 3. A diferença fundamental: modelo conhecido vs. desconhecido
+
+### Planejamento (Value Iteration)
+- usa $T(s,a,s')$ e $R(s,a,s')$ diretamente,  
+- calcula valores sem experimentar,  
+- funciona apenas quando o modelo é dado.
+
+### Aprendizado (Q-Learning)
+- não precisa de $T(s,a,s')$,  
+- não precisa de $R(s,a,s')$,  
+- aprende valores **experimentando**.
+
+Essa é a grande mudança da Lecture 19.
+
+---
+
+## 4. O que o agente observa no RL?
+
+O agente observa apenas:
+
+- o estado atual $s$,  
+- a ação tomada $a$,  
+- o próximo estado $s'$,  
+- a recompensa recebida $r$.
+
+Ou seja:
+
+> O agente vê **amostras** do ambiente, não o modelo completo.
+
+---
+
+## 5. O desafio: aprender valores sem saber transições
+
+Value Iteration usa:
+
+$$
+\sum_{s'} T(s,a,s')\, V(s')
+$$
+
+Mas em RL:
+
+- não sabemos $T(s,a,s')$,  
+- não sabemos a distribuição de transições,  
+- só vemos **um** próximo estado por vez.
+
+Portanto:
+
+> Precisamos de uma forma de aprender valores usando apenas amostras.
+
+Essa forma é **Q-Learning**.
+
+---
+
+## 6. A ideia central que leva ao Q-Learning
+
+A professora explica:
+
+> “Se não sabemos o modelo, não podemos calcular o valor esperado diretamente.  
+> Mas podemos **estimar** esse valor usando amostras.”
+
+Ou seja:
+
+- cada transição observada fornece uma estimativa parcial,  
+- essas estimativas são acumuladas ao longo do tempo,  
+- o valor converge para o valor ótimo.
+
+Essa é a essência do aprendizado por reforço.
+
+---
+
+## 7. Conexão com Value Iteration
+
+Value Iteration atualiza:
+
+$$
+V_{k+1}(s) = \max_a \left[ R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V_k(s') \right]
+$$
+
+Q-Learning atualiza:
+
+$$
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ r + \gamma \max_{a'} Q(s',a') - Q(s,a) \right]
+$$
+
+A estrutura é a mesma, mas:
+
+- Value Iteration usa o modelo,  
+- Q-Learning usa amostras.
+
+---
+
+## 8. Conclusão da Parte 1
+
+Nesta parte entendemos:
+
+- por que Value Iteration não funciona em ambientes desconhecidos,  
+- por que RL é necessário,  
+- como agentes reais aprendem por interação,  
+- como amostras substituem o modelo completo,  
+- como isso motiva o surgimento do Q-Learning.
+
+Na próxima parte estudaremos:
+
+- a definição formal de Q-Learning,  
+- a atualização temporal (TD update),  
+- e como Q-Learning converge para $Q^*(s,a)$.
+
+
+
+<br><br>
+
+
+
+<a id="lecture19_parte2"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 19 — Parte 2  
+Q-Learning — Atualização Temporal (TD Update)  
+=============================
+
+Nesta parte introduzimos o algoritmo central da Lecture 19: **Q-Learning**.  
+Ele é a versão “aprendida” de Value Iteration — isto é, uma forma de aproximar $Q^*(s,a)$ **sem conhecer o modelo do ambiente**.
+
+O objetivo é entender:
+
+- o que é a função $Q(s,a)$,  
+- como ela substitui $V(s)$,  
+- como atualizá-la usando apenas amostras,  
+- como isso leva ao aprendizado da política ótima.
+
+---
+
+## 1. Por que aprender $Q(s,a)$?
+
+Em Value Iteration, precisamos de:
+
+$$
+T(s,a,s') \quad \text{e} \quad R(s,a,s')
+$$
+
+Mas em RL:
+
+- não sabemos $T(s,a,s')$,  
+- não sabemos $R(s,a,s')$,  
+- só observamos **um** próximo estado por vez.
+
+Portanto, não podemos calcular:
+
+$$
+\sum_{s'} T(s,a,s')\, V(s')
+$$
+
+A solução é aprender diretamente:
+
+$$
+Q(s,a)
+$$
+
+que representa:
+
+> **O valor esperado de tomar ação $a$ no estado $s$ e seguir a política ótima depois disso.**
+
+---
+
+## 2. Definição da função $Q^*(s,a)$
+
+Formalmente:
+
+$$
+Q^*(s,a) = R(s,a) + \gamma \sum_{s'} T(s,a,s')\, V^*(s')
+$$
+
+E:
+
+$$
+V^*(s) = \max_a Q^*(s,a)
+$$
+
+Ou seja:
+
+- $Q^*(s,a)$ é mais informativo que $V^*(s)$,  
+- $Q^*(s,a)$ permite escolher ações diretamente,  
+- Q-Learning aprende $Q^*(s,a)$ sem conhecer o modelo.
+
+---
+
+## 3. A atualização temporal (TD Update)
+
+Quando o agente observa uma transição:
+
+- estado atual: $s$  
+- ação tomada: $a$  
+- recompensa recebida: $r$  
+- próximo estado: $s'$  
+
+ele atualiza:
+
+$$
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ r + \gamma \max_{a'} Q(s',a') - Q(s,a) \right]
+$$
+
+Essa é a **regra de atualização do Q-Learning**.
+
+---
+
+## 4. Intuição da atualização
+
+A atualização compara:
+
+- o valor atual $Q(s,a)$  
+- com uma **estimativa melhor** baseada na experiência:
+
+$$
+r + \gamma \max_{a'} Q(s',a')
+$$
+
+O termo:
+
+$$
+\delta = r + \gamma \max_{a'} Q(s',a') - Q(s,a)
+$$
+
+é chamado de **erro temporal (TD error)**.
+
+A atualização é:
+
+$$
+Q \leftarrow Q + \alpha \delta
+$$
+
+onde:
+
+- $\alpha$ é a taxa de aprendizado (learning rate),  
+- $0 < \alpha \le 1$.
+
+---
+
+## 5. Por que isso funciona?
+
+Porque:
+
+- cada transição observada fornece uma estimativa parcial de $Q^*(s,a)$,  
+- essas estimativas são acumuladas ao longo do tempo,  
+- o TD error corrige o valor atual,  
+- o processo converge para $Q^*(s,a)$.
+
+Q-Learning é, essencialmente:
+
+> **Value Iteration aplicado sobre amostras.**
+
+---
+
+## 6. Q-Learning não precisa do modelo
+
+A grande vantagem:
+
+- não precisa de $T(s,a,s')$,  
+- não precisa de $R(s,a,s')$,  
+- aprende apenas com experiência.
+
+O agente aprende enquanto:
+
+- joga,  
+- explora,  
+- tenta ações,  
+- observa recompensas.
+
+---
+
+## 7. Extração da política ótima
+
+Depois que $Q(s,a)$ converge:
+
+$$
+\pi^*(s) = \arg\max_a Q(s,a)
+$$
+
+Ou seja:
+
+> Escolha a ação com maior valor aprendido.
+
+---
+
+## 8. Conclusão da Parte 2
+
+Nesta parte aprendemos:
+
+- o que é a função $Q(s,a)$,  
+- como ela substitui $V(s)$ em ambientes desconhecidos,  
+- a regra de atualização temporal (TD update),  
+- o papel do TD error,  
+- como Q-Learning aprende $Q^*(s,a)$ sem conhecer o modelo.
+
+Na próxima parte estudaremos:
+
+- o papel da **exploração**,  
+- o dilema exploração vs. exploração,  
+- e a estratégia $\varepsilon$-greedy.
+
+
+
+<Br><Br>
+
+
+
+<a id="lecture19_parte3"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 19 — Parte 3  
+Exploração vs. Exploração — Estratégia ε-greedy  
+=============================
+
+Nesta parte estudamos um dos dilemas fundamentais do aprendizado por reforço:
+
+> **Como equilibrar explorar ações novas e explorar ações já conhecidas como boas?**
+
+Esse dilema é chamado de **exploration vs. exploitation**.
+
+Q-Learning só funciona bem se o agente explorar o ambiente de forma adequada.
+
+---
+
+## 1. O dilema central
+
+O agente deve escolher entre:
+
+### **Exploração**
+- tentar ações novas,  
+- descobrir recompensas desconhecidas,  
+- aprender transições que ainda não foram observadas.
+
+### **Exploração**
+- escolher a melhor ação conhecida,  
+- maximizar recompensa imediata,  
+- seguir a política atual.
+
+O problema é:
+
+> Se o agente explorar demais, ele não aproveita o que já aprendeu.  
+> Se explorar de menos, ele nunca aprende o suficiente.
+
+---
+
+## 2. Por que exploração é necessária?
+
+Sem exploração:
+
+- o agente pode ficar preso em políticas ruins,  
+- nunca descobre ações melhores,  
+- nunca aprende transições importantes.
+
+Exemplo clássico:
+
+- o agente tenta uma ação uma vez, recebe uma recompensa baixa,  
+- mas essa ação poderia levar a uma recompensa alta em outro estado,  
+- sem exploração, ele nunca descobrirá isso.
+
+---
+
+## 3. Estratégia ε-greedy
+
+A solução mais usada é a estratégia **ε-greedy**.
+
+Ela funciona assim:
+
+- com probabilidade **ε**, o agente **explora** (escolhe uma ação aleatória),  
+- com probabilidade **1 − ε**, o agente **explora** (escolhe a melhor ação segundo $Q$).
+
+Formalmente:
+
+$$
+\pi(s) =
+\begin{cases}
+\text{ação aleatória}, & \text{com probabilidade } \varepsilon \\
+\arg\max_a Q(s,a), & \text{com probabilidade } 1 - \varepsilon
+\end{cases}
+$$
+
+---
+
+## 4. Intuição da estratégia
+
+A professora explica que:
+
+> “ε-greedy mantém o agente curioso, mas não ingênuo.”
+
+Ou seja:
+
+- ele explora o suficiente para aprender,  
+- mas explora o suficiente para aproveitar o que já sabe.
+
+---
+
+## 5. Escolha do valor de ε
+
+Valores típicos:
+
+- $\varepsilon = 0.1$ → 10% de exploração  
+- $\varepsilon = 0.01$ → 1% de exploração  
+- $\varepsilon = 0.3$ → exploração agressiva
+
+A escolha depende:
+
+- da complexidade do ambiente,  
+- da quantidade de estados,  
+- da necessidade de descobrir transições raras.
+
+---
+
+## 6. Decaimento de ε (ε-decay)
+
+Uma estratégia comum é reduzir ε ao longo do tempo:
+
+$$
+\varepsilon_t = \varepsilon_0 \cdot \text{decay}^t
+$$
+
+Por exemplo:
+
+- começa com $\varepsilon_0 = 0.3$,  
+- reduz gradualmente até $\varepsilon = 0.01$.
+
+Intuição:
+
+> No início, o agente deve explorar bastante.  
+> Depois, deve explorar menos e aproveitar o que aprendeu.
+
+---
+
+## 7. Conexão com Q-Learning
+
+Q-Learning atualiza:
+
+$$
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ r + \gamma \max_{a'} Q(s',a') - Q(s,a) \right]
+$$
+
+Mas essa atualização só funciona bem se:
+
+- o agente visitar todos os estados suficientes vezes,  
+- o agente tentar todas as ações suficientes vezes.
+
+ε-greedy garante isso.
+
+---
+
+## 8. Conclusão da Parte 3
+
+Nesta parte entendemos:
+
+- o dilema exploração vs. exploração,  
+- por que exploração é essencial para RL,  
+- como funciona a estratégia ε-greedy,  
+- como escolher ε,  
+- como usar ε-decay,  
+- como isso garante que Q-Learning converge.
+
+Na próxima parte estudaremos:
+
+- a convergência formal do Q-Learning,  
+- condições necessárias,  
+- e por que Q-Learning encontra $Q^*(s,a)$.
+
+
+
+<br><br>
+
+
+
+<a id="lecture19_parte4"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 19 — Parte 4  
+Convergência do Q-Learning  
+=============================
+
+Nesta parte estudamos **por que** o algoritmo de Q-Learning converge para a função de valor ótima de ações:
+
+$$
+Q^*(s,a)
+$$
+
+Assim como Value Iteration converge para $V^*(s)$, Q-Learning converge para $Q^*(s,a)$ — mas agora usando **apenas amostras** do ambiente, sem conhecer o modelo.
+
+---
+
+## 1. Relembrando a atualização do Q-Learning
+
+Quando o agente observa uma transição:
+
+- estado atual: $s$  
+- ação tomada: $a$  
+- recompensa recebida: $r$  
+- próximo estado: $s'$  
+
+ele atualiza:
+
+$$
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ r + \gamma \max_{a'} Q(s',a') - Q(s,a) \right]
+$$
+
+Esse é o **TD update** (Temporal Difference update).
+
+---
+
+## 2. O operador de Bellman para Q
+
+O operador ótimo para Q é:
+
+$$
+(BQ)(s,a) = R(s,a) + \gamma \sum_{s'} T(s,a,s')\, \max_{a'} Q(s',a')
+$$
+
+O valor ótimo é o ponto fixo:
+
+$$
+Q^* = BQ^*
+$$
+
+Q-Learning tenta aproximar esse ponto fixo usando amostras.
+
+---
+
+## 3. Q-Learning como aproximação estocástica de Bellman
+
+A atualização:
+
+$$
+r + \gamma \max_{a'} Q(s',a')
+$$
+
+é uma **amostra** da expectativa:
+
+$$
+R(s,a) + \gamma \sum_{s'} T(s,a,s')\, \max_{a'} Q(s',a')
+$$
+
+Portanto:
+
+> Q-Learning é uma aproximação estocástica do operador de Bellman.
+
+Cada transição observada fornece uma estimativa parcial do valor verdadeiro.
+
+---
+
+## 4. Condições para convergência
+
+A professora destaca três condições essenciais:
+
+### **1. Taxa de aprendizado adequada**
+
+A sequência $\alpha_t$ deve satisfazer:
+
+- $\sum_t \alpha_t = \infty$  
+- $\sum_t \alpha_t^2 < \infty$
+
+Na prática:
+
+- $\alpha_t = \frac{1}{t}$ funciona,  
+- ou $\alpha$ constante pequena (ex.: 0.1) funciona bem empiricamente.
+
+### **2. Exploração suficiente**
+
+O agente deve:
+
+- visitar todos os estados suficientes vezes,  
+- tentar todas as ações suficientes vezes.
+
+Estratégias como **ε-greedy** garantem isso.
+
+### **3. Fator de desconto**
+
+$$
+0 < \gamma < 1
+$$
+
+Isso garante que o operador é uma contração.
+
+---
+
+## 5. Teorema de Convergência
+
+Sob as condições acima:
+
+> **Q-Learning converge para $Q^*(s,a)$ com probabilidade 1.**
+
+Ou seja:
+
+- o aprendizado é garantido,  
+- o valor ótimo é alcançado,  
+- a política ótima pode ser extraída.
+
+---
+
+## 6. Intuição da convergência
+
+A professora explica que:
+
+> “Q-Learning é Value Iteration com ruído.”
+
+- Cada atualização é uma versão ruidosa da atualização de Bellman.  
+- O ruído vem da amostra única do próximo estado.  
+- Com muitas amostras, o ruído se cancela.  
+- A média converge para o valor verdadeiro.
+
+É exatamente como estimar uma média com amostras aleatórias.
+
+---
+
+## 7. Convergência da política
+
+Depois que $Q(s,a)$ converge:
+
+$$
+\pi^*(s) = \arg\max_a Q(s,a)
+$$
+
+Essa política é:
+
+- ótima,  
+- determinística,  
+- equivalente à política de Value Iteration.
+
+---
+
+## 8. Conclusão da Parte 4
+
+Nesta parte entendemos:
+
+- como Q-Learning aproxima o operador de Bellman,  
+- por que o TD update converge,  
+- quais condições são necessárias para convergência,  
+- o papel da exploração e da taxa de aprendizado,  
+- como Q-Learning encontra $Q^*(s,a)$.
+
+Na próxima parte estudaremos:
+
+- exemplos concretos de Q-Learning em Gridworld,  
+- como o agente aprende valores ao longo do tempo,  
+- como a política ótima emerge da experiência.
+
+
+
+<br><br>
+
+
+
+<a id="lecture19_parte5"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 19 — Parte 5  
+Q-Learning em Gridworld — Aprendizado por Experiência  
+=============================
+
+Nesta parte visualizamos como o algoritmo de **Q-Learning** funciona na prática, usando o ambiente clássico **Gridworld**.  
+O objetivo é entender como:
+
+- o agente aprende valores por tentativa e erro,  
+- o TD update ajusta $Q(s,a)$ ao longo do tempo,  
+- a política ótima emerge gradualmente,  
+- o aprendizado difere de Value Iteration.
+
+---
+
+## 1. O ambiente Gridworld revisitado
+
+O ambiente é o mesmo usado na Lecture 18:
+
+- estados com recompensa $+1$ (objetivo),  
+- estados com recompensa $-1$ (perigo),  
+- estados com recompensa $0$ (vazios),  
+- paredes (inacessíveis),  
+- ações estocásticas (80% direção desejada, 10% desvios).
+
+Mas agora:
+
+> **O agente não conhece o modelo.**
+
+Ele deve aprender tudo por experiência.
+
+---
+
+## 2. Inicialização de Q(s,a)
+
+No início:
+
+$$
+Q(s,a) = 0
+$$
+
+para todos os estados e ações.
+
+Isso significa:
+
+- o agente não sabe nada,  
+- todas as ações parecem igualmente boas,  
+- exploração é essencial.
+
+---
+
+## 3. Episódios de aprendizado
+
+O agente executa vários episódios:
+
+1. começa em um estado inicial,  
+2. escolhe ações usando ε-greedy,  
+3. observa recompensas,  
+4. atualiza $Q(s,a)$,  
+5. termina quando chega em um estado terminal.
+
+Cada episódio melhora a estimativa de $Q(s,a)$.
+
+---
+
+## 4. Atualização durante o episódio
+
+Quando o agente observa:
+
+- estado atual: $s$  
+- ação tomada: $a$  
+- recompensa: $r$  
+- próximo estado: $s'$  
+
+ele aplica:
+
+$$
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ r + \gamma \max_{a'} Q(s',a') - Q(s,a) \right]
+$$
+
+Essa atualização:
+
+- corrige o valor da ação,  
+- incorpora informação nova,  
+- aproxima $Q(s,a)$ de $Q^*(s,a)$.
+
+---
+
+## 5. Propagação de valores por experiência
+
+Diferente de Value Iteration:
+
+- a propagação não ocorre globalmente,  
+- ocorre apenas nos estados visitados,  
+- depende da trajetória do agente.
+
+Se o agente nunca visita um estado:
+
+- ele nunca aprende seu valor,  
+- por isso a exploração é crucial.
+
+---
+
+## 6. Como os valores emergem
+
+Com o tempo:
+
+- ações que levam ao objetivo recebem valores altos,  
+- ações que levam ao perigo recebem valores negativos,  
+- ações neutras recebem valores intermediários.
+
+Exemplo:
+
+Se o agente está perto do objetivo:
+
+$$
+Q(s,\text{ir para o objetivo}) \approx 0.9
+$$
+
+Se está perto do perigo:
+
+$$
+Q(s,\text{ir para o perigo}) \approx -0.9
+$$
+
+Esses valores são aprendidos **somente** pelas transições observadas.
+
+---
+
+## 7. Emergência da política ótima
+
+Depois que $Q(s,a)$ converge:
+
+$$
+\pi^*(s) = \arg\max_a Q(s,a)
+$$
+
+A política ótima emerge naturalmente:
+
+- estados próximos ao objetivo apontam para ele,  
+- estados próximos ao perigo apontam para longe,  
+- estados neutros escolhem caminhos que maximizam valor futuro.
+
+A política final é idêntica à obtida por Value Iteration — mas aprendida por experiência.
+
+---
+
+## 8. Diferença fundamental entre Value Iteration e Q-Learning
+
+### **Value Iteration**
+- usa o modelo completo,  
+- atualiza todos os estados simultaneamente,  
+- é um algoritmo de planejamento.
+
+### **Q-Learning**
+- usa apenas amostras,  
+- atualiza apenas estados visitados,  
+- é um algoritmo de aprendizado.
+
+A professora enfatiza:
+
+> “Q-Learning é Value Iteration aplicado ao mundo real.”
+
+---
+
+## 9. Conclusão da Parte 5
+
+Nesta parte entendemos:
+
+- como Q-Learning funciona em Gridworld,  
+- como valores são aprendidos por tentativa e erro,  
+- como o TD update ajusta $Q(s,a)$,  
+- como a política ótima emerge gradualmente,  
+- como Q-Learning difere de Value Iteration.
+
+Na próxima parte estudaremos:
+
+- **SARSA**,  
+- a diferença entre aprendizado **on-policy** e **off-policy**,  
+- e como isso afeta o comportamento do agente.
+
+
+
+<br><br>
+<a id="lecture19_parte6"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 19 — Parte 6  
+SARSA — Aprendizado On-Policy  
+=============================
+
+Nesta parte estudamos o algoritmo **SARSA**, uma alternativa ao Q-Learning.  
+Enquanto Q-Learning é **off-policy**, SARSA é **on-policy** — e essa diferença muda profundamente o comportamento do agente.
+
+O objetivo é entender:
+
+- o que significa aprendizado on-policy,  
+- como SARSA atualiza valores,  
+- como ele difere de Q-Learning,  
+- quando SARSA é preferível.
+
+---
+
+## 1. On-policy vs. Off-policy
+
+### **Off-policy (Q-Learning)**  
+O agente aprende a **política ótima**, mesmo que esteja seguindo outra política (ex.: ε-greedy).
+
+Ele atualiza usando:
+
+$$
+\max_{a'} Q(s',a')
+$$
+
+Ou seja:
+
+> Aprende como **agir de forma ótima**, mesmo que não esteja agindo assim agora.
+
+### **On-policy (SARSA)**  
+O agente aprende a **política que ele realmente executa**.
+
+Ele atualiza usando a **ação que realmente tomou** no próximo estado.
+
+Ou seja:
+
+> Aprende a política **que está sendo seguida**, não a política ótima.
+
+---
+
+## 2. O nome SARSA
+
+SARSA vem da sequência de elementos usados na atualização:
+
+- **S**: estado atual  
+- **A**: ação atual  
+- **R**: recompensa  
+- **S'**: próximo estado  
+- **A'**: próxima ação  
+
+A atualização depende de **A'**, a ação realmente escolhida.
+
+---
+
+## 3. Atualização do SARSA
+
+Quando o agente observa:
+
+- estado atual: $s$  
+- ação tomada: $a$  
+- recompensa: $r$  
+- próximo estado: $s'$  
+- próxima ação escolhida: $a'$  
+
+ele atualiza:
+
+$$
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ r + \gamma Q(s',a') - Q(s,a) \right]
+$$
+
+Compare com Q-Learning:
+
+$$
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ r + \gamma \max_{a'} Q(s',a') - Q(s,a) \right]
+$$
+
+A diferença está no termo:
+
+- SARSA usa **$Q(s',a')$**  
+- Q-Learning usa **$\max_{a'} Q(s',a')$**
+
+---
+
+## 4. Intuição da diferença
+
+### **Q-Learning (off-policy)**  
+Assume que o agente **sempre escolherá a melhor ação** no futuro.
+
+### **SARSA (on-policy)**  
+Assume que o agente **continuará seguindo sua política atual**, que pode incluir exploração.
+
+Isso significa:
+
+> SARSA leva em conta o comportamento exploratório do agente.
+
+---
+
+## 5. Consequência prática
+
+SARSA tende a aprender políticas **mais seguras** em ambientes estocásticos.
+
+Exemplo clássico:
+
+- há um caminho curto até o objetivo, mas perigoso,  
+- há um caminho longo, porém seguro.
+
+### Q-Learning  
+Assume que o agente sempre escolherá a melhor ação → tende a preferir o caminho curto.
+
+### SARSA  
+Considera que o agente pode explorar → tende a evitar o caminho perigoso.
+
+---
+
+## 6. SARSA com ε-greedy
+
+Como SARSA é on-policy, a política usada para escolher ações deve ser a mesma usada na atualização.
+
+A política típica é:
+
+- ε-greedy para escolher ações,  
+- e a mesma ε-greedy para atualizar $Q(s,a)$.
+
+---
+
+## 7. Convergência do SARSA
+
+SARSA converge para a política ótima **da política exploratória**.
+
+Se ε decai para zero:
+
+- a política exploratória converge para a política ótima,  
+- SARSA converge para $Q^*(s,a)$.
+
+Se ε não decai:
+
+- SARSA converge para a política ótima **com exploração**,  
+- que pode ser mais conservadora.
+
+---
+
+## 8. Quando usar SARSA?
+
+SARSA é preferível quando:
+
+- o ambiente é perigoso,  
+- ações ruins podem causar grandes perdas,  
+- exploração pode levar a estados indesejados.
+
+SARSA aprende políticas mais prudentes.
+
+---
+
+## 9. Conclusão da Parte 6
+
+Nesta parte entendemos:
+
+- a diferença entre aprendizado on-policy e off-policy,  
+- como SARSA atualiza valores usando a ação realmente tomada,  
+- como isso muda o comportamento do agente,  
+- por que SARSA é mais seguro em ambientes estocásticos,  
+- quando SARSA é preferível ao Q-Learning.
+
+Na próxima parte estudaremos:
+
+- **comparação direta entre Q-Learning e SARSA**,  
+- exemplos concretos,  
+- e implicações práticas para agentes reais.
+
+
+
+<br><br>
+
+
+
+<a id="lecture19_parte7"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 19 — Parte 7  
+Comparação entre Q-Learning e SARSA  
+=============================
+
+Nesta parte comparamos diretamente os dois algoritmos de aprendizado por reforço vistos na Lecture 19:
+
+- **Q-Learning** (off-policy)  
+- **SARSA** (on-policy)
+
+A professora explica que ambos aprendem funções de valor de ações, mas o comportamento e o tipo de política aprendida são diferentes.
+
+---
+
+## 1. Diferença fundamental
+
+### **Q-Learning — Off-policy**
+
+Atualiza usando:
+
+$$
+r + \gamma \max_{a'} Q(s',a')
+$$
+
+Ou seja:
+
+> Assume que o agente **sempre escolherá a melhor ação** no futuro.
+
+Ele aprende **a política ótima**, independentemente da política usada para explorar.
+
+---
+
+### **SARSA — On-policy**
+
+Atualiza usando:
+
+$$
+r + \gamma Q(s',a')
+$$
+
+onde $a'$ é a **ação realmente tomada** no próximo estado.
+
+Ou seja:
+
+> Aprende **a política que está sendo executada**, incluindo exploração.
+
+---
+
+## 2. Consequência prática
+
+### **Q-Learning**
+- ignora o comportamento exploratório,  
+- assume que o agente será ótimo no futuro,  
+- tende a aprender políticas **mais agressivas**,  
+- pode escolher caminhos arriscados.
+
+### **SARSA**
+- leva em conta a ação exploratória,  
+- assume que o agente pode tomar ações subótimas,  
+- tende a aprender políticas **mais conservadoras**,  
+- evita caminhos perigosos quando há estocasticidade.
+
+---
+
+## 3. Exemplo clássico: o Cliff Walking
+
+A professora usa o ambiente “Cliff Walking” para ilustrar:
+
+- há um caminho curto até o objetivo, mas ao lado de um precipício,  
+- há um caminho longo, porém seguro.
+
+### **Q-Learning**
+- aprende a política ótima teórica,  
+- escolhe o caminho curto,  
+- mas durante exploração pode cair no precipício.
+
+### **SARSA**
+- considera que o agente pode explorar,  
+- evita o precipício,  
+- escolhe o caminho longo e seguro.
+
+Esse exemplo mostra claramente a diferença entre on-policy e off-policy.
+
+---
+
+## 4. Convergência
+
+### **Q-Learning**
+Converge para:
+
+$$
+Q^*(s,a)
+$$
+
+desde que:
+
+- todas as ações sejam exploradas,  
+- $\alpha$ decaia adequadamente.
+
+### **SARSA**
+Converge para:
+
+$$
+Q^{\pi}(s,a)
+$$
+
+onde $\pi$ é a política **ε-greedy** usada durante o aprendizado.
+
+Se $\varepsilon \to 0$ com o tempo:
+
+- SARSA também converge para $Q^*(s,a)$.
+
+Se $\varepsilon$ é constante:
+
+- SARSA converge para a política ótima **com exploração**.
+
+---
+
+## 5. Quando usar cada algoritmo?
+
+### Use **Q-Learning** quando:
+- o ambiente é seguro,  
+- exploração não causa grandes perdas,  
+- você quer a política ótima teórica,  
+- o ambiente é determinístico ou pouco estocástico.
+
+### Use **SARSA** quando:
+- o ambiente é perigoso,  
+- ações exploratórias podem causar danos,  
+- você quer políticas mais prudentes,  
+- o ambiente é altamente estocástico.
+
+---
+
+## 6. Resumo da comparação
+
+| Aspecto | Q-Learning | SARSA |
+|--------|------------|--------|
+| Tipo | Off-policy | On-policy |
+| Atualização | $\max_{a'} Q(s',a')$ | $Q(s',a')$ |
+| Política aprendida | Ótima | Política executada |
+| Comportamento | Agressivo | Conservador |
+| Risco | Alto | Baixo |
+| Convergência | $Q^*$ | $Q^\pi$ |
+
+---
+
+## 7. Intuição final
+
+A professora resume:
+
+> “Q-Learning aprende como agir **se fosse perfeito**.  
+> SARSA aprende como agir **sabendo que pode cometer erros**.”
+
+Essa diferença é essencial para escolher o algoritmo certo em aplicações reais.
+
+---
+
+## 8. Conclusão da Parte 7
+
+Nesta parte entendemos:
+
+- a diferença entre aprendizado on-policy e off-policy,  
+- como Q-Learning e SARSA atualizam valores,  
+- como isso afeta o comportamento do agente,  
+- quando cada algoritmo é mais adequado,  
+- e por que SARSA é mais seguro em ambientes estocásticos.
+
+Na próxima parte estudaremos:
+
+- **Expected SARSA**,  
+- uma versão intermediária entre Q-Learning e SARSA,  
+- que suaviza a atualização usando expectativas.
+
+
+
+<br><br>
+
+
+
+<a id="lecture19_parte8"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit5](#unit5)
+
+=============================  
+Lecture 19 — Parte 8  
+Expected SARSA — Atualização Esperada  
+=============================
+
+Nesta parte estudamos **Expected SARSA**, um algoritmo que fica exatamente entre:
+
+- **Q-Learning** (off-policy, agressivo)  
+- **SARSA** (on-policy, conservador)
+
+Expected SARSA suaviza a atualização usando **expectativas** sobre as ações futuras, em vez de usar:
+
+- a melhor ação (como Q-Learning),  
+- ou a ação realmente tomada (como SARSA).
+
+---
+
+## 1. Motivação para Expected SARSA
+
+A professora explica que:
+
+> “Q-Learning pode ser agressivo demais.  
+> SARSA pode ser conservador demais.  
+> Expected SARSA é o meio-termo.”
+
+A ideia é:
+
+- reduzir a variância da atualização,  
+- considerar todas as ações possíveis no próximo estado,  
+- ponderar essas ações pela política de exploração.
+
+---
+
+## 2. Atualização do Expected SARSA
+
+Quando o agente observa:
+
+- estado atual: $s$  
+- ação tomada: $a$  
+- recompensa: $r$  
+- próximo estado: $s'$  
+
+ele atualiza:
+
+$$
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ r + \gamma \, \mathbb{E}_{a' \sim \pi} \left[ Q(s',a') \right] - Q(s,a) \right]
+$$
+
+O termo novo é:
+
+$$
+\mathbb{E}_{a' \sim \pi} [Q(s',a')]
+$$
+
+que significa:
+
+> A média ponderada dos valores das ações futuras, segundo a política atual.
+
+---
+
+## 3. Como calcular a expectativa
+
+Se a política é **ε-greedy**, então:
+
+- com probabilidade $1 - \varepsilon$, escolhemos a ação ótima,  
+- com probabilidade $\varepsilon$, escolhemos uma ação aleatória.
+
+Portanto:
+
+$$
+\mathbb{E}_{a' \sim \pi} [Q(s',a')] = (1 - \varepsilon) \max_{a'} Q(s',a') + \frac{\varepsilon}{|A|} \sum_{a'} Q(s',a')
+$$
+
+Essa expressão suaviza a atualização.
+
+---
+
+## 4. Comparação com Q-Learning e SARSA
+
+### **Q-Learning**
+Usa:
+
+$$
+\max_{a'} Q(s',a')
+$$
+
+→ agressivo, ignora exploração.
+
+### **SARSA**
+Usa:
+
+$$
+Q(s',a')
+$$
+
+→ conservador, depende da ação tomada.
+
+### **Expected SARSA**
+Usa:
+
+$$
+\mathbb{E}_{a' \sim \pi} [Q(s',a')]
+$$
+
+→ intermediário, pondera todas as ações.
+
+---
+
+## 5. Consequências práticas
+
+Expected SARSA:
+
+- reduz variância,  
+- é mais estável que Q-Learning,  
+- é menos conservador que SARSA,  
+- converge mais suavemente,  
+- funciona bem em ambientes estocásticos.
+
+A professora destaca:
+
+> “Expected SARSA é frequentemente mais estável que Q-Learning.”
+
+---
+
+## 6. Intuição da atualização
+
+Expected SARSA considera:
+
+- que o agente pode explorar,  
+- mas também pode escolher ações boas,  
+- e pondera essas possibilidades.
+
+Isso evita:
+
+- atualizações muito otimistas (Q-Learning),  
+- atualizações muito pessimistas (SARSA).
+
+---
+
+## 7. Convergência
+
+Expected SARSA converge para:
+
+- a política ótima se $\varepsilon \to 0$,  
+- a política ε-greedy se $\varepsilon$ é constante.
+
+Assim como SARSA, ele é **on-policy**, mas com menor variância.
+
+---
+
+## 8. Quando usar Expected SARSA?
+
+Use Expected SARSA quando:
+
+- o ambiente é estocástico,  
+- você quer estabilidade,  
+- Q-Learning oscila demais,  
+- SARSA é conservador demais.
+
+É muito usado em:
+
+- robótica,  
+- navegação,  
+- ambientes com ruído,  
+- simulações físicas.
+
+---
+
+## 9. Conclusão da Parte 8
+
+Nesta parte entendemos:
+
+- o que é Expected SARSA,  
+- como ele suaviza a atualização usando expectativas,  
+- como ele se posiciona entre Q-Learning e SARSA,  
+- por que ele reduz variância,  
+- quando ele é preferível,  
+- como ele converge.
+
+Com isso, concluímos a Lecture 19.
+
+A próxima lecture (Lecture 20) introduzirá:
+
+- **Model-based RL**,  
+- **Dyna-Q**,  
+- e como combinar planejamento com aprendizado.
+
+
+
+<br><br>
+
+
+[$\Uparrow$ Índice](#indice)  
