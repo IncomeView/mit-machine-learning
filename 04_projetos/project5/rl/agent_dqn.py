@@ -31,15 +31,16 @@ optimizer = None
 
 
 def epsilon_greedy(state_vector, epsilon):
-    """Returns an action selected by an epsilon-greedy exploration policy
+    """
+    Retorna uma ação selecionada por uma política de exploração epsilon-greedy
 
     Args:
-        state_vector (torch.FloatTensor): extracted vector representation
-        theta (np.ndarray): current weight matrix
-        epsilon (float): the probability of choosing a random command
+        state_vector (torch.FloatTensor): representação vetorial extraída
+        theta (np.ndarray): matriz de pesos atual
+        epsilon (float): a probabilidade de escolher um comando aleatório
 
     Returns:
-        (int, int): the indices describing the action/object to take
+        (int, int): os índices que descrevem a ação/objeto a ser escolhido
     """
     # TODO Your code here
     action_index, object_index = None, None
@@ -47,8 +48,9 @@ def epsilon_greedy(state_vector, epsilon):
 
 
 class DQN(nn.Module):
-    """A simple deep Q network implementation.
-    Computes Q values for each (action, object) tuple given an input state vector
+    """
+    Uma implementação simples de Deep Q-Network.
+    Calcula valores Q para cada tupla (ação, objeto) a partir de um vetor de estado de entrada.
     """
 
     def __init__(self, state_dim, action_dim, object_dim, hidden_size=100):
@@ -71,17 +73,18 @@ def deep_q_learning(
     next_state_vector,
     terminal,
 ):
-    """Updates the weights of the DQN for a given transition
+    """
+    Atualiza os pesos da DQN para uma determinada transição
 
     Args:
-        current_state_vector (torch.FloatTensor): vector representation of current state
-        action_index (int): index of the current action
-        object_index (int): index of the current object
-        reward (float): the immediate reward the agent recieves from playing current command
-        next_state_vector (torch.FloatTensor): vector representation of next state
-        terminal (bool): True if this epsiode is over
+        current_state_vector (torch.FloatTensor): representação vetorial do estado atual
+        action_index (int): índice da ação atual
+        object_index (int): índice do objeto atual
+        reward (float): recompensa imediata que o agente recebe ao executar o comando atual
+        next_state_vector (torch.FloatTensor): representação vetorial do próximo estado
+        terminal (bool): True se este episódio tiver terminado
 
-    Returns:
+    Return:
         None
     """
     with torch.no_grad():
@@ -104,9 +107,9 @@ def deep_q_learning(
 
 def run_episode(for_training):
     """
-    Runs one episode
-    If for training, update Q function
-    If for testing, computes and return cumulative discounted reward
+    Executa um episódio
+    Se for para treinamento, atualiza a função Q
+    Se for para teste, calcula e retorna a recompensa acumulada descontada
     """
     epsilon = TRAINING_EP if for_training else TESTING_EP
     epi_reward = None
@@ -142,7 +145,7 @@ def run_episode(for_training):
 
 
 def run_epoch():
-    """Runs one epoch and returns reward averaged over test episodes"""
+    """Executa uma época e retorna a recompensa média dos episódios de teste"""
     rewards = []
 
     for _ in range(NUM_EPIS_TRAIN):
@@ -155,7 +158,7 @@ def run_epoch():
 
 
 def run():
-    """Returns array of test reward per epoch for one run"""
+    """Retorna um array de recompensas de teste por época para uma execução"""
     global model
     global optimizer
     model = DQN(state_dim, NUM_ACTIONS, NUM_OBJECTS)
