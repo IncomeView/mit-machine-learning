@@ -3999,9 +3999,7 @@ O dual é:
 
 $$
 \max_{\alpha}
-\sum_{i=1}^n \alpha_i
--
-\frac{1}{2}
+\sum_{i=1}^n \alpha_i - \frac{1}{2}
 \sum_{i=1}^n \sum_{j=1}^n
 \alpha_i \alpha_j y_i y_j (x_i^\top x_j)
 $$
@@ -4036,9 +4034,7 @@ O dual kernelizado se torna:
 
 $$
 \max_{\alpha}
-\sum_{i=1}^n \alpha_i
--
-\frac{1}{2}
+\sum_{i=1}^n \alpha_i - \frac{1}{2}
 \sum_{i=1}^n \sum_{j=1}^n
 \alpha_i \alpha_j y_i y_j K(x_i, x_j).
 $$
@@ -4127,9 +4123,7 @@ Mesma estrutura, mas com probabilidades.
 
 Você implementou explicitamente:
 
-$$
-\phi(x) = \text{cubic\_features}(x).
-$$
+$$ \phi(x) = \text{cubic\_features}(x). $$
 
 O kernel cúbico:
 

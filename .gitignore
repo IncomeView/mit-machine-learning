@@ -26,6 +26,7 @@ data/*
 models/*
 !models/.gitkeep
 04_projetos/model.py
+01_notebooks/Lectures/draft.ipynb
 
 # Cache
 .cache/
