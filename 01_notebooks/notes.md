@@ -1,4 +1,4 @@
-notes.md
+indice notes.md
 
 <a id="indice"></a>
 
@@ -76,13 +76,14 @@ Unit 2. | Nonlinear Classification, Linear regression, Collaborative Filtering
 21. [Fatores Latentes](#latente)
 
 
+
 <a id="unit3"></a>
 
 =====================================  
-Unit 3. | Neural Networks
+Unit 3. | Neural Networks  
 =====================================
 
-### 8. Redes Neurais
+### 8. Fundamentos para Modelos de Linguagem
 1. [One‑hot Encoding](#onehot)  
 2. [Softmax](#softmax)  
 3. [Modelos de Markov (n‑gram)](#markov)  
@@ -93,15 +94,24 @@ Unit 3. | Neural Networks
 6. [Embeddings](#embeddings)  
 7. [Retropropagação (Backpropagation)](#backprop)  
 
-### 10. (RNNs) Redes Neurais Recorrentes 
+### 10. Redes Neurais Recorrentes (RNNs)
 8. [Redes Neurais Recorrentes (RNN)](#rnn)  
 9. [Gating em Redes Recorrentes](#gating)  
 10. [LSTM — Long Short‑Term Memory](#lstm)  
 11. [Seq2Seq — Codificação e Decodificação](#seq2seq)  
 12. [Probabilidade de Sentenças](#prob_sentencas)  
-13. [MLE para n‑gram](#mle_ngram)
+13. [MLE para n‑gram](#mle_ngram)  
 
-### 11. (CNNs) Redes Neurais Convolucionais 
+### 11. Redes Neurais Convolucionais (CNNs)
+14. [Introdução às CNNs](#cnn_intro)  
+15. [Convolução e Filtros](#cnn_convs)  
+16. [Feature Maps e Canais](#cnn_featuremaps)  
+17. [Padding, Stride e Dimensionalidade](#cnn_padding_stride)  
+18. [Pooling e Downsampling](#cnn_pooling)  
+19. [Arquiteturas CNN (Filtros 3D, Camadas Empilhadas)](#cnn_arquiteturas)  
+20. [Hierarquia de Características](#cnn_hierarquia)  
+21. [CNNs para Classificação](#cnn_classificacao)
+
 
 
 
@@ -6574,7 +6584,8 @@ Sem fatores latentes, Matrix Completion não teria significado.
 
 
 <a id="onehot"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 One‑hot Encoding
@@ -6631,7 +6642,8 @@ Ele prepara o terreno para embeddings, que substituem essa representação por v
 
 
 <a id="softmax"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 Softmax
@@ -6697,7 +6709,8 @@ Ele transforma logits em distribuições e permite que modelos de linguagem faç
 
 
 <a id="markov"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 Modelos de Markov (n‑gram)
@@ -6760,7 +6773,8 @@ Eles são simples, interpretáveis e fáceis de treinar, mas sofrem com históri
 
 
 <a id="feedforward"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 Feedforward Networks para Linguagem
@@ -6829,7 +6843,8 @@ Elas preparam o terreno para RNNs, que resolvem o problema do histórico fixo.
 
 
 <a id="relu"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 ReLU, Fronteiras e Regiões Lineares
@@ -6912,68 +6927,149 @@ Cada neurônio define uma fronteira $z=0$, e a combinação dessas fronteiras cr
 
 
 <a id="embeddings"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
-Embeddings
+Embeddings  
 =============================
 
-A representação one‑hot é simples, mas tem duas limitações importantes:
+A representação **one‑hot** é simples, mas tem duas limitações fundamentais:
 
-1. não captura nenhuma relação semântica entre palavras  
-2. produz vetores de dimensão igual ao vocabulário (muito grandes)
+1. produz vetores extremamente esparsos e de alta dimensão ($K$, o tamanho do vocabulário);  
+2. não captura nenhuma relação semântica entre palavras — todos os vetores são ortogonais.
 
-Para resolver isso, usamos **embeddings**, que são vetores densos aprendidos pela rede.
+Para resolver isso, redes neurais utilizam **embeddings**, que são vetores densos e aprendidos automaticamente durante o treinamento.
 
-Um embedding é obtido multiplicando o one‑hot por uma matriz de embedding $E$:
+---
+
+## 1. Embeddings como *lookup table*
+
+Um embedding é obtido multiplicando o vetor one‑hot por uma matriz de embedding $E$:
 
 $$
-x_{\text{embed}} = E x_{\text{onehot}}
+x_{\text{embed}} = E \, x_{\text{onehot}}
 $$
 
 Se o vocabulário tem tamanho $K$ e queremos embeddings de dimensão $d$, então:
 
-- $E$ é uma matriz $K \times d$  
-- cada linha de $E$ é o embedding de uma palavra  
+- $E \in \mathbb{R}^{K \times d}$  
+- cada **linha** de $E$ é o embedding de uma palavra  
+- o one‑hot seleciona exatamente uma linha de $E$
 
-Assim, o embedding de uma palavra é simplesmente a linha correspondente de $E$.
+Ou seja, $E$ funciona como uma **tabela de consulta (lookup table)**:
 
-### Intuição
+- o índice da palavra → retorna seu embedding  
+- não há multiplicação real; é apenas indexação
 
-Embeddings permitem que palavras com significados semelhantes tenham vetores próximos.  
-Por exemplo:
+---
+
+## 2. Embeddings são parâmetros treináveis
+
+A matriz $E$ é atualizada por retropropagação como qualquer outro peso da rede.
+
+Isso significa que:
+
+- embeddings **não são pré-definidos**;  
+- eles são **aprendidos** para otimizar a tarefa final (prever próxima palavra, traduzir, classificar, etc.);  
+- palavras com papéis semelhantes na tarefa acabam com vetores próximos.
+
+Exemplo intuitivo:
 
 - “king” e “queen” ficam próximos  
 - “dog” e “cat” ficam próximos  
 - “run” e “walk” ficam mais próximos entre si do que de “banana”
 
-Isso acontece porque a rede ajusta $E$ durante o treinamento para minimizar a perda da tarefa (prever a próxima palavra, traduzir, etc.).
+Essa semântica emerge automaticamente.
 
-### Pensamento aplicado
+---
 
-Embeddings resolvem três problemas fundamentais do one‑hot:
+## 3. Embeddings em redes feedforward
 
-1. **Dimensionalidade reduzida.**  
-   Em vez de vetores de tamanho $K$, usamos vetores de tamanho $d \ll K$.
+Em modelos feedforward para linguagem:
 
-2. **Semântica distribuída.**  
-   Significados são representados por padrões contínuos nos vetores.
+- a entrada é one‑hot  
+- o embedding é a primeira transformação linear  
+- a rede aprende a projetar palavras em um espaço contínuo onde padrões são mais fáceis de capturar
 
-3. **Generalização.**  
-   Palavras raras podem ser representadas por embeddings úteis, mesmo com poucas ocorrências.
+Isso substitui o histórico fixo dos modelos n‑gram por uma representação mais rica.
 
-Além disso, embeddings são usados em:
+---
 
-- feedforward  
-- RNN  
-- seq2seq  
-- transformers  
-- modelos modernos de NLP
+## 4. Embeddings em RNNs e LSTMs
 
-### Conclusão
+Em RNNs, LSTMs e GRUs, embeddings são ainda mais importantes:
 
-Embeddings substituem one‑hot por vetores densos e semânticos.  
-Eles permitem que modelos de linguagem capturem relações entre palavras e generalizem muito melhor.
+- cada palavra $x_t$ é convertida em $x_{\text{embed},t}$  
+- esse vetor é alimentado na equação recorrente:
+
+$$
+s_t = f(W_{sx} \, x_{\text{embed},t} + W_{ss} \, s_{t-1})
+$$
+
+Embeddings permitem que a rede capture:
+
+- relações sintáticas (ex.: verbos, substantivos)  
+- relações semânticas (ex.: animais, objetos)  
+- dependências de longo prazo (via estado recorrente)
+
+Sem embeddings, RNNs teriam dificuldade em generalizar.
+
+---
+
+## 5. Embeddings em Seq2Seq
+
+No modelo seq2seq:
+
+- o **encoder** recebe embeddings da frase de entrada  
+- o **decoder** recebe embeddings das palavras geradas
+
+Durante o treinamento (teacher forcing):
+
+- o decoder recebe o embedding da palavra correta  
+- isso ajuda a estabilizar o aprendizado
+
+Embeddings são essenciais para que o vetor de contexto represente a frase inteira de forma contínua.
+
+---
+
+## 6. Embeddings em CNNs
+
+Embora CNNs sejam mais comuns em visão, elas também podem ser usadas em NLP:
+
+- cada palavra é convertida em embedding  
+- a frase vira uma matriz $T \times d$  
+- filtros convolucionais detectam padrões locais (ex.: bigramas, trigramas)
+
+Nesse caso, embeddings funcionam como “pixels semânticos”.
+
+---
+
+## 7. Por que embeddings funcionam?
+
+Embeddings funcionam porque:
+
+1. **reduzem dimensionalidade**  
+   de $K$ para $d$ (com $d \ll K$)
+
+2. **capturam semântica distribuída**  
+   significados são representados por padrões contínuos
+
+3. **generalizam melhor**  
+   palavras raras podem ter embeddings úteis mesmo com poucas ocorrências
+
+4. **são treinados de ponta a ponta**  
+   ajustados diretamente pela tarefa final
+
+5. **conectam todas as arquiteturas modernas**  
+   feedforward, RNN, LSTM, seq2seq, transformers, CNNs para texto
+
+---
+
+## Conclusão
+
+Embeddings substituem a representação one‑hot por vetores densos e semânticos aprendidos automaticamente.  
+Eles são a base de todos os modelos modernos de linguagem, permitindo que redes neurais capturem relações complexas entre palavras e generalizem muito melhor do que modelos n‑gram tradicionais.
 
 
 
@@ -6983,16 +7079,29 @@ Eles permitem que modelos de linguagem capturem relações entre palavras e gene
 
 
 <a id="backprop"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
-Retropropagação (Backpropagation)
+Retropropagação (Backpropagation)  
 =============================
 
 A retropropagação é o algoritmo que permite treinar redes neurais ajustando seus pesos para minimizar uma função de perda.  
 Ela calcula como cada peso contribui para o erro final e atualiza esses pesos usando gradiente descendente.
 
-Considere uma rede com camadas:
+Backprop é a aplicação sistemática da **regra da cadeia** em redes neurais profundas, incluindo:
+
+- redes feedforward,  
+- RNNs (via BPTT),  
+- LSTMs,  
+- CNNs (gradiente de filtros),  
+- seq2seq.
+
+---
+
+## 1. Backpropagation em redes feedforward
+
+Considere uma rede com:
 
 $$
 h = f(Wx + b)
@@ -7002,13 +7111,13 @@ $$
 p = \text{softmax}(Vh + c)
 $$
 
-e uma perda $L(p, y)$.
+e perda $L(p, y)$.
 
 A retropropagação calcula:
 
-1. o gradiente da perda em relação à saída  
-2. o gradiente da saída em relação às ativações  
-3. o gradiente das ativações em relação aos pesos  
+1. o gradiente da perda em relação à saída,  
+2. o gradiente da saída em relação às ativações,  
+3. o gradiente das ativações em relação aos pesos.
 
 Aplicando a regra da cadeia:
 
@@ -7030,7 +7139,9 @@ $$
 
 onde $\theta$ é qualquer peso da rede.
 
-### Gradiente para uma camada linear
+---
+
+## 2. Gradiente para uma camada linear
 
 Se:
 
@@ -7050,7 +7161,11 @@ $$
 = \frac{\partial L}{\partial z}
 $$
 
-### Gradiente através da ReLU
+Essas expressões são usadas em todas as arquiteturas.
+
+---
+
+## 3. Gradiente através da ReLU
 
 A ReLU é:
 
@@ -7070,32 +7185,135 @@ $$
 
 Ou seja:
 
-- neurônios ativos passam gradiente  
-- neurônios apagados bloqueiam gradiente  
+- neurônios ativos passam gradiente,  
+- neurônios apagados bloqueiam gradiente.
 
-### Pensamento aplicado
+Isso explica por que redes profundas podem ter regiões “mortas”.
 
-A retropropagação é essencial porque:
+---
 
-1. **Permite treinar redes profundas.**  
-   Sem ela, não saberíamos como ajustar pesos em camadas internas.
+## 4. Backpropagation Through Time (BPTT) — RNNs
 
-2. **Explica por que RNNs sofrem com vanishing/exploding gradients.**  
-   Em uma RNN, o estado é atualizado repetidamente:  $$s_t = f(Wx_t + U s_{t-1})$$  
-   O gradiente passa por $U$ muitas vezes.  
-   Se $U$ tem autovalores pequenos → gradiente desaparece.  
-   Se $U$ tem autovalores grandes → gradiente explode.
+Em RNNs, o estado é atualizado repetidamente:
 
-3. **Motiva gating e LSTM.**  
-   LSTM foi criada para controlar o fluxo de gradiente ao longo do tempo.
+$$
+s_t = f(Wx_t + U s_{t-1})
+$$
 
-4. **Conecta feedforward, RNN e LSTM.**  
-   Todos usam retropropagação — apenas a estrutura muda.
+O gradiente precisa atravessar **todos os passos da sequência**, aplicando a regra da cadeia repetidamente:
 
-### Conclusão
+$$
+\frac{\partial L}{\partial U}
+= \sum_{t} 
+\frac{\partial L}{\partial s_t}
+\cdot
+\frac{\partial s_t}{\partial U}
+$$
 
-Retropropagação é o mecanismo que permite que redes neurais aprendam.  
-Ela calcula gradientes camada por camada e explica tanto o funcionamento quanto as limitações das RNNs, motivando arquiteturas como LSTM.
+Como $s_t$ depende de $s_{t-1}$, que depende de $s_{t-2}$, etc., o gradiente passa por múltiplas multiplicações por $U$.
+
+Se os autovalores de $U$ forem:
+
+- menores que 1 → **vanishing gradient**,  
+- maiores que 1 → **exploding gradient**.
+
+Esse fenômeno motiva o uso de **gating** e **LSTM**.
+
+---
+
+## 5. Backpropagation em LSTMs
+
+LSTMs introduzem gates que controlam o fluxo de gradiente:
+
+- forget gate  
+- input gate  
+- output gate  
+
+O estado de memória:
+
+$$
+c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t
+$$
+
+permite que o gradiente flua de forma mais estável ao longo do tempo, reduzindo vanishing/exploding.
+
+Backprop em LSTMs envolve:
+
+- gradientes através de sigmoides,  
+- gradientes através de $\tanh$,  
+- gradientes através de multiplicações elemento a elemento,  
+- gradientes através do caminho de memória $c_t$.
+
+---
+
+## 6. Backpropagation em CNNs
+
+Em CNNs, o gradiente precisa ser computado para:
+
+1. **filtros 3D**  
+   $$W^{(k)} \in \mathbb{R}^{h \times w \times C}$$
+
+2. **feature maps**  
+   $$Z^{(k)}$$
+
+3. **operações de pooling**  
+   (max pooling precisa rastrear qual elemento foi o máximo)
+
+O gradiente de um filtro é:
+
+$$
+\frac{\partial L}{\partial W^{(k)}}
+= \sum_{i,j}
+\frac{\partial L}{\partial Z^{(k)}[i,j]}
+\cdot
+X[i:i+h,\, j:j+w]
+$$
+
+Ou seja:
+
+- cada posição do feature map contribui para o gradiente do filtro,  
+- o filtro é atualizado somando contribuições de todos os patches.
+
+---
+
+## 7. Backpropagation em seq2seq
+
+No seq2seq:
+
+- o encoder produz estados $s_t$,  
+- o decoder usa esses estados para gerar a saída.
+
+Backprop precisa fluir por:
+
+1. toda a sequência do encoder (BPTT),  
+2. toda a sequência do decoder (BPTT),  
+3. conexões entre encoder e decoder,  
+4. embeddings de entrada e saída.
+
+Durante **teacher forcing**, o decoder recebe a palavra correta, o que estabiliza o gradiente.
+
+---
+
+## 8. Pensamento aplicado
+
+Backpropagation é essencial porque:
+
+1. **permite treinar redes profundas**,  
+2. **explica limitações das RNNs**,  
+3. **motiva LSTM e gating**,  
+4. **permite aprender filtros em CNNs**,  
+5. **conecta todas as arquiteturas modernas**,  
+6. **é o mecanismo central do aprendizado supervisionado em deep learning**.
+
+Sem backprop, redes neurais modernas simplesmente não existiriam.
+
+---
+
+## Conclusão
+
+Retropropagação é a aplicação sistemática da regra da cadeia em redes neurais profundas.  
+Ela explica tanto o funcionamento quanto as limitações de feedforward, RNNs, LSTMs, CNNs e seq2seq, e é o mecanismo que permite que redes neurais aprendam representações complexas a partir de dados.
+
 
 
 
@@ -7106,7 +7324,8 @@ Ela calcula gradientes camada por camada e explica tanto o funcionamento quanto 
 
 
 <a id="rnn"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 Redes Neurais Recorrentes (RNN)
@@ -7185,7 +7404,8 @@ Ela é o primeiro modelo capaz de capturar dependências longas e preparar o ter
 
 
 <a id="gating"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 Gating em Redes Recorrentes
@@ -7294,7 +7514,8 @@ Eles resolvem vanishing/exploding gradients e permitem que modelos como LSTM man
 
 
 <a id="lstm"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 LSTM | Long Short-Term Memory
@@ -7407,18 +7628,19 @@ Ela resolve vanishing/exploding gradients e permite capturar dependências longa
 
 
 <a id="seq2seq"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
-Seq2Seq | Codificação e Decodificação
+Seq2Seq | Codificação e Decodificação  
 =============================
 
 Modelos recorrentes (RNN/LSTM) conseguem processar sequências, mas ainda não resolvem tarefas onde **entrada e saída têm comprimentos diferentes**, como:
 
-- tradução automática  
-- sumarização  
-- resposta a perguntas  
-- geração condicionada  
+- tradução automática,  
+- sumarização,  
+- resposta a perguntas,  
+- geração condicionada.
 
 Para isso, usamos a arquitetura **Seq2Seq (Sequence‑to‑Sequence)**, composta por:
 
@@ -7430,7 +7652,7 @@ O decoder expande esse vetor em uma nova sequência.
 
 ---
 
-### Codificador (Encoder)
+## 1. Codificador (Encoder)
 
 O encoder lê a frase de entrada palavra por palavra.  
 Usando uma RNN/LSTM genérica:
@@ -7447,19 +7669,48 @@ $$
 
 é o **vetor de contexto** — uma representação comprimida da frase inteira.
 
+Esse vetor contém:
+
+- sintaxe,  
+- semântica,  
+- dependências de longo prazo,  
+- informações relevantes para a tarefa.
+
 ---
 
-### Decodificador (Decoder)
+## 2. O problema do “bottleneck”
 
-O decoder recebe o vetor de contexto e começa a gerar a saída, passo a passo.
+O vetor de contexto $s_T$ tem dimensão fixa, por exemplo:
 
-Ele usa:
+$$
+s_T \in \mathbb{R}^{d}
+$$
 
-- a palavra anterior gerada $y_{t-1}$  
-- o estado anterior $s'_{t-1}$  
-- o contexto $s_T$  
+Mas a frase pode ter:
 
-para produzir:
+- 5 palavras,  
+- 20 palavras,  
+- 50 palavras.
+
+Comprimir toda a informação da frase em um único vetor cria um **gargalo (bottleneck)**:
+
+- frases longas podem perder informação,  
+- detalhes importantes podem ser descartados,  
+- o decoder pode ter dificuldade em reconstruir a saída.
+
+Esse problema motivou o surgimento do **mecanismo de atenção**, que será visto na Unit 4.
+
+---
+
+## 3. Decodificador (Decoder)
+
+O decoder recebe:
+
+- o vetor de contexto $s_T$,  
+- a palavra anterior gerada (ou correta, no treinamento),  
+- o estado recorrente anterior.
+
+Ele calcula:
 
 $$
 s'_t = f(W' y_{t-1} + U' s'_{t-1} + C s_T + b')
@@ -7475,19 +7726,78 @@ A palavra gerada é amostrada de $p_t$.
 
 ---
 
-### Teacher Forcing
+## 4. Teacher Forcing
 
-Durante o treinamento, o decoder recebe a **palavra correta** do passo anterior, não a palavra gerada.  
-Isso acelera o aprendizado e estabiliza a rede.
+Durante o treinamento, o decoder **não usa a palavra gerada** no passo anterior.  
+Em vez disso, ele recebe a **palavra correta**:
+
+$$
+y_{t-1}^{\text{gold}}
+$$
+
+Isso estabiliza o aprendizado porque:
+
+- evita que erros se acumulem,  
+- acelera a convergência,  
+- permite que o modelo aprenda dependências longas.
+
+Durante a inferência, o decoder usa suas próprias predições.
 
 ---
 
-### Pensamento aplicado
+## 5. Seq2Seq com LSTM
+
+Na prática, o encoder e o decoder são quase sempre LSTMs:
+
+- o encoder usa LSTM para capturar dependências longas,  
+- o decoder usa LSTM para gerar a sequência de saída.
+
+O estado de memória $c_t$ ajuda a preservar informação ao longo da geração.
+
+---
+
+## 6. Fluxo completo do Seq2Seq
+
+### Encoder
+```
+x1 → x2 → x3 → ... → xT → sT
+```
+
+### Decoder
+```
+sT → y1 → y2 → y3 → ... → yU
+```
+
+onde:
+
+- $T$ = tamanho da entrada,  
+- $U$ = tamanho da saída.
+
+---
+
+## 7. Seq2Seq como modelo generativo condicionado
+
+O decoder é um modelo generativo que produz:
+
+$$
+P(y_1, \dots, y_U \mid s_T)
+$$
+
+Ou seja:
+
+- ele gera a saída condicionada à entrada inteira,  
+- não apenas às últimas palavras.
+
+Isso é o que permite tradução, sumarização e outras tarefas complexas.
+
+---
+
+## 8. Pensamento aplicado
 
 Seq2Seq resolve três limitações fundamentais das RNNs simples:
 
 1. **Comprimentos diferentes**  
-   O encoder resume a entrada em um vetor fixo, independentemente do tamanho.
+   O encoder resume a entrada em um vetor fixo.
 
 2. **Dependências longas**  
    O vetor de contexto carrega informação da frase inteira.
@@ -7495,14 +7805,17 @@ Seq2Seq resolve três limitações fundamentais das RNNs simples:
 3. **Geração condicionada**  
    A saída depende tanto do histórico quanto da entrada completa.
 
-Por outro lado, comprimir toda a frase em um único vetor pode ser um gargalo — motivando mecanismos de atenção (transformers).
+Por outro lado, comprimir toda a frase em um único vetor pode ser um gargalo — motivando mecanismos de atenção.
 
 ---
 
-### Conclusão
+## Conclusão
 
 Seq2Seq é a arquitetura clássica para mapeamento entre sequências.  
-O encoder comprime a entrada e o decoder gera a saída, guiado pelo vetor de contexto.
+O encoder comprime a entrada e o decoder gera a saída, guiado pelo vetor de contexto.  
+Teacher forcing estabiliza o treinamento, e o bottleneck do vetor de contexto motiva o uso de atenção em arquiteturas modernas.
+
+
 
 
 
@@ -7512,7 +7825,8 @@ O encoder comprime a entrada e o decoder gera a saída, guiado pelo vetor de con
 
 
 <a id="prob_sentencas"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 Probabilidade de Sentenças
@@ -7630,7 +7944,8 @@ Modelos neurais estimam essas probabilidades via softmax, e o treinamento maximi
 
 
 <a id="mle_ngram"></a>
-[$\Uparrow$ Índice](#indice)
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
 
 =============================  
 MLE para n‑gram
@@ -7738,6 +8053,1231 @@ Sem n‑gram, não existe a transição para redes neurais.
 
 MLE para n‑gram estima probabilidades como frequências relativas.  
 É simples, eficiente e historicamente fundamental, mas sofre com escassez de dados e motivou a evolução para modelos neurais.
+
+
+
+
+<br><Br>
+
+
+
+
+<a id="cnn_intro"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
+
+=============================  
+Introdução às CNNs  
+=============================
+
+Redes neurais totalmente conectadas funcionam bem para vetores pequenos, como palavras ou embeddings.  
+Mas imagens possuem **milhares ou milhões de pixels**, e conectar cada pixel a cada neurônio é inviável.
+
+Considere uma imagem de $1000 \times 1000$ pixels:
+
+- são $10^6$ entradas,  
+- uma única camada totalmente conectada com $10^6$ neurônios teria  
+  $$10^6 \times 10^6 = 10^{12} \text{ pesos}$$  
+- isso exige memória enorme, muito tempo de treinamento e muitos dados.
+
+Além disso, redes densas **não são invariantes a posição**:
+
+- se um objeto aparece no canto superior esquerdo no treino,  
+- e no canto inferior direito no teste,  
+- a rede não reconhece o padrão, pois os pesos conectados àquela região nunca viram o objeto.
+
+CNNs resolvem esses problemas usando três ideias fundamentais:
+
+1. **Conectividade local**  
+   Cada neurônio vê apenas um pequeno pedaço da imagem (um *patch*), não a imagem inteira.
+
+2. **Pesos compartilhados**  
+   O mesmo conjunto de pesos (um *filtro*) é aplicado em todas as posições da imagem.
+
+3. **Feature maps**  
+   Cada filtro produz um mapa que indica onde um padrão aparece.
+
+Essas ideias reduzem drasticamente o número de parâmetros e tornam a rede invariável a pequenas translações.
+
+---
+
+### Conectividade local
+
+Em vez de conectar cada neurônio a todos os pixels, conectamos apenas a um pequeno patch, por exemplo:
+
+- patch de $11 \times 11$ pixels  
+- total de $121$ entradas  
+- apenas $121$ pesos por filtro
+
+Isso permite que a rede aprenda padrões locais, como:
+
+- bordas,  
+- texturas,  
+- pequenas formas.
+
+---
+
+### Pesos compartilhados
+
+O mesmo filtro é aplicado em toda a imagem.  
+Isso significa que:
+
+- o filtro “varre” a imagem,  
+- detectando onde o padrão aparece,  
+- produzindo um **feature map**.
+
+Se o filtro representa uma borda vertical, o feature map terá valores altos onde a imagem contém bordas verticais.
+
+---
+
+### Feature maps
+
+Cada filtro produz um mapa de características:
+
+- entrada: imagem  
+- operação: produto interno local  
+- saída: matriz indicando a presença do padrão
+
+Se tivermos $K$ filtros, teremos $K$ feature maps.
+
+A imagem deixa de ser apenas uma matriz $H \times W$ e passa a ser um **tensor**:
+
+$$
+\mathbb{R}^{H' \times W' \times K}
+$$
+
+onde cada canal representa um padrão diferente.
+
+---
+
+### Pensamento aplicado
+
+CNNs são essenciais porque:
+
+1. **reduzem drasticamente o número de parâmetros**,  
+2. **capturam padrões locais**,  
+3. **são invariantes a pequenas translações**,  
+4. **permitem construir hierarquias de características**  
+   (bordas → partes → objetos).
+
+Essas propriedades tornam CNNs o padrão para visão computacional moderna.
+
+---
+
+### Conclusão
+
+A introdução às CNNs mostra por que redes densas não funcionam para imagens e como conectividade local + pesos compartilhados + feature maps tornam CNNs eficientes e poderosas.  
+Nos próximos itens, veremos como a operação de convolução funciona matematicamente e como filtros são aprendidos pela rede.
+
+
+
+
+<br><br>
+
+
+
+<a id="cnn_convs"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
+
+=============================  
+Convolução e Filtros  
+=============================
+
+A operação fundamental das CNNs é a **convolução**, ou mais precisamente, a **correlação cruzada** — a versão usada em redes neurais.  
+Ela permite que a rede detecte padrões locais em diferentes posições da imagem usando **filtros** (kernels) com pesos compartilhados.
+
+---
+
+## 1. Filtros como pequenas imagens
+
+Um filtro é uma pequena matriz de pesos, por exemplo:
+
+$$
+W \in \mathbb{R}^{h \times w}
+$$
+
+com $h$ e $w$ tipicamente entre 3 e 11.
+
+Ele funciona como uma “mini imagem” que a rede tenta encontrar dentro da imagem maior.
+
+Exemplo de filtro $3 \times 3$:
+
+$$
+W =
+\begin{bmatrix}
+-1 & 0 & 1 \\
+-1 & 0 & 1 \\
+-1 & 0 & 1
+\end{bmatrix}
+$$
+
+Esse filtro detecta **bordas verticais**.
+
+---
+
+## 2. Correlação cruzada (operação usada em CNNs)
+
+Dada uma imagem $X$ e um filtro $W$, a saída em uma posição $(i,j)$ é:
+
+$$
+(X \star W)[i,j]
+= \sum_{u=0}^{h-1} \sum_{v=0}^{w-1}
+X[i+u,\, j+v] \, W[u,v]
+$$
+
+Ou seja:
+
+- deslocamos o filtro sobre a imagem,  
+- multiplicamos elemento a elemento,  
+- somamos tudo,  
+- produzimos um único número.
+
+Esse número indica **quanto o patch da imagem se parece com o filtro**.
+
+---
+
+## 3. Convolução vs. correlação cruzada
+
+A convolução clássica inverte o filtro:
+
+$$
+(f * g)(t) = \sum_{\tau} f(\tau)\, g(t - \tau)
+$$
+
+Mas CNNs **não invertem** o filtro.  
+Por isso usam correlação cruzada.
+
+Como os filtros são aprendidos, inverter ou não inverter não faz diferença — a rede aprende o padrão correto.
+
+---
+
+## 4. Feature map
+
+Aplicar o filtro em todas as posições gera um **mapa de características**:
+
+$$
+\text{feature map} \in \mathbb{R}^{H' \times W'}
+$$
+
+Cada valor indica a força da ativação do filtro naquela região.
+
+Se o filtro detecta bordas verticais:
+
+- regiões com bordas verticais terão valores altos,  
+- regiões sem bordas terão valores baixos.
+
+---
+
+## 5. Vários filtros → vários canais
+
+Se a camada tem $K$ filtros:
+
+$$
+W^{(1)}, W^{(2)}, \dots, W^{(K)}
+$$
+
+então ela produz $K$ feature maps:
+
+$$
+\mathbb{R}^{H' \times W' \times K}
+$$
+
+Cada canal representa um padrão diferente aprendido pela rede.
+
+---
+
+## 6. Convolução como produto interno local
+
+A operação pode ser vista como:
+
+$$
+z = \langle X_{\text{patch}}, W \rangle
+$$
+
+onde $X_{\text{patch}}$ é o patch da imagem na posição atual.
+
+Isso conecta CNNs com redes lineares:  
+cada filtro é um **classificador linear local** aplicado em todas as posições.
+
+---
+
+## 7. Pensamento aplicado
+
+Convolução é poderosa porque:
+
+1. **Reduz drasticamente o número de parâmetros**  
+   (um filtro pequeno aplicado em toda a imagem).
+
+2. **Detecta padrões independentemente da posição**  
+   (invariância a translação).
+
+3. **Cria representações profundas**  
+   (vários filtros → vários canais → hierarquia de características).
+
+4. **É eficiente computacionalmente**  
+   (operações locais, paralelizáveis).
+
+---
+
+## Conclusão
+
+Convolução é o mecanismo que permite que CNNs detectem padrões locais com eficiência.  
+Filtros são aplicados em toda a imagem, produzindo feature maps que indicam onde cada padrão aparece.  
+Esse é o bloco fundamental sobre o qual todas as arquiteturas CNN são construídas.
+
+
+
+
+<br><br>
+
+
+
+
+<a id="cnn_featuremaps"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
+
+=============================  
+Feature Maps e Canais  
+=============================
+
+Quando aplicamos um filtro sobre uma imagem, obtemos um **feature map** — uma matriz que indica onde o padrão representado pelo filtro aparece.  
+Se usamos vários filtros, obtemos vários feature maps, formando um **tensor de múltiplos canais**.
+
+Essa estrutura é o coração das CNNs: cada canal representa um tipo diferente de padrão aprendido pela rede.
+
+---
+
+## 1. Feature map: saída de um único filtro
+
+Dada uma imagem $X$ e um filtro $W$, a saída da convolução é:
+
+$$
+Z[i,j] = \sum_{u=0}^{h-1} \sum_{v=0}^{w-1}
+X[i+u,\, j+v] \, W[u,v]
+$$
+
+O resultado $Z$ é o **feature map**, uma matriz de dimensão:
+
+$$
+H' \times W'
+$$
+
+Cada valor $Z[i,j]$ indica **quanto o patch da imagem em $(i,j)$ se parece com o filtro**.
+
+---
+
+## 2. Vários filtros → vários feature maps
+
+Se a camada tem $K$ filtros:
+
+$$
+W^{(1)}, W^{(2)}, \dots, W^{(K)}
+$$
+
+então ela produz $K$ feature maps:
+
+$$
+Z^{(1)}, Z^{(2)}, \dots, Z^{(K)}
+$$
+
+A saída da camada é um **tensor**:
+
+$$
+\mathbb{R}^{H' \times W' \times K}
+$$
+
+onde:
+
+- $H'$ = altura do mapa,  
+- $W'$ = largura,  
+- $K$ = número de canais.
+
+Cada canal representa um padrão diferente aprendido pela rede.
+
+---
+
+## 3. Imagens já possuem canais
+
+Uma imagem RGB tem 3 canais:
+
+$$
+X \in \mathbb{R}^{H \times W \times 3}
+$$
+
+Cada canal representa:
+
+- vermelho (R),  
+- verde (G),  
+- azul (B).
+
+Quando aplicamos um filtro em uma imagem RGB, o filtro deve ter **3 canais também**:
+
+$$
+W \in \mathbb{R}^{h \times w \times 3}
+$$
+
+Assim, cada filtro combina informações dos três canais da imagem.
+
+---
+
+## 4. Filtros 3D em camadas profundas
+
+Após a primeira camada convolucional, a imagem deixa de ser RGB e passa a ter $K$ canais.
+
+Se a próxima camada tem $M$ filtros, cada filtro deve ter dimensão:
+
+$$
+W^{(m)} \in \mathbb{R}^{h \times w \times K}
+$$
+
+Ou seja:
+
+- altura = $h$  
+- largura = $w$  
+- profundidade = número de canais da camada anterior
+
+Isso permite que filtros profundos combinem padrões de vários canais, criando representações mais complexas.
+
+---
+
+## 5. Intuição: canais como “tipos de padrões”
+
+Cada canal representa um tipo de padrão detectado pela rede:
+
+- canal 1 → bordas horizontais  
+- canal 2 → bordas verticais  
+- canal 3 → textura  
+- canal 4 → cor específica  
+- canal 5 → curva  
+- …
+
+Em camadas profundas:
+
+- canal 50 → olho de gato  
+- canal 120 → roda de carro  
+- canal 200 → formato de cogumelo  
+
+Essa é a **hierarquia de características** das CNNs.
+
+---
+
+## 6. Pensamento aplicado
+
+Feature maps e canais são essenciais porque:
+
+1. **cada filtro aprende um padrão diferente**,  
+2. **a rede constrói representações profundas combinando canais**,  
+3. **a profundidade do tensor aumenta a expressividade**,  
+4. **camadas posteriores combinam padrões simples em padrões complexos**.
+
+Sem canais, CNNs não conseguiriam representar estruturas ricas como objetos completos.
+
+---
+
+## Conclusão
+
+Feature maps são as respostas dos filtros aplicados à imagem.  
+Vários filtros produzem vários canais, formando um tensor que representa diferentes padrões aprendidos pela rede.  
+Essa estrutura permite que CNNs construam representações cada vez mais complexas ao longo das camadas.
+
+
+
+
+<br><br>
+
+
+
+
+<a id="cnn_padding_stride"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
+
+=============================  
+Padding, Stride e Dimensionalidade  
+=============================
+
+A operação de convolução altera o tamanho espacial da imagem.  
+Para controlar essa alteração, CNNs usam dois mecanismos fundamentais:
+
+1. **Padding** — adiciona bordas artificiais à imagem  
+2. **Stride** — controla o passo com que o filtro se desloca
+
+Esses dois parâmetros determinam a **dimensão da saída** da camada convolucional.
+
+---
+
+## 1. Padding
+
+Quando aplicamos um filtro em uma imagem, o filtro não consegue “encaixar” nas bordas sem sair da imagem.  
+Por isso, sem padding, a saída sempre fica **menor** que a entrada.
+
+Exemplo:
+
+- imagem: $5 \times 5$  
+- filtro: $3 \times 3$  
+- saída: $3 \times 3$
+
+Para evitar essa redução, adicionamos zeros ao redor da imagem:
+
+$$
+\text{padding} = P
+$$
+
+Com padding $P$, a imagem passa de:
+
+$$
+H \times W \quad \to \quad (H + 2P) \times (W + 2P)
+$$
+
+### Tipos comuns de padding
+
+- **Valid** (sem padding)  
+  saída sempre menor
+
+- **Same** (padding escolhido para manter tamanho)  
+  saída com mesma dimensão da entrada
+
+---
+
+## 2. Stride
+
+Stride é o **passo** com que o filtro se desloca na imagem.
+
+- stride = 1 → desloca 1 pixel por vez  
+- stride = 2 → desloca 2 pixels por vez  
+- stride = 3 → desloca 3 pixels por vez  
+
+Stride controla a **resolução** da saída:
+
+- stride maior → saída menor  
+- stride menor → saída maior
+
+Stride também reduz custo computacional.
+
+---
+
+## 3. Dimensionalidade da saída
+
+Dada uma imagem de dimensão:
+
+$$
+H \times W
+$$
+
+um filtro de dimensão:
+
+$$
+K \times K
+$$
+
+padding $P$ e stride $S$, a saída terá dimensão:
+
+$$
+H_{\text{out}} = \frac{H - K + 2P}{S} + 1
+$$
+
+$$
+W_{\text{out}} = \frac{W - K + 2P}{S} + 1
+$$
+
+Essa fórmula é essencial para projetar arquiteturas CNN.
+
+---
+
+## 4. Exemplo completo
+
+Imagem: $32 \times 32$  
+Filtro: $5 \times 5$  
+Padding: $P = 2$  
+Stride: $S = 1$
+
+Cálculo:
+
+$$
+H_{\text{out}} = \frac{32 - 5 + 4}{1} + 1 = 32
+$$
+
+A saída mantém o tamanho original — esse é o comportamento do padding “same”.
+
+---
+
+## 5. Intuição geométrica
+
+Padding e stride controlam:
+
+- **o quanto a imagem é reduzida**,  
+- **o quanto a convolução “vê” das bordas**,  
+- **a resolução dos feature maps**,  
+- **o custo computacional**.
+
+Sem padding, a imagem encolhe rapidamente.  
+Com stride alto, a imagem encolhe ainda mais.
+
+CNNs equilibram esses fatores para manter profundidade e eficiência.
+
+---
+
+## 6. Pensamento aplicado
+
+Padding e stride são essenciais porque:
+
+1. **controlam o tamanho da saída**,  
+2. **evitam perda de informação nas bordas**,  
+3. **reduzem custo computacional**,  
+4. **permitem projetar arquiteturas profundas**,  
+5. **influenciam a qualidade das representações**.
+
+Sem esses mecanismos, CNNs não seriam práticas para imagens grandes.
+
+---
+
+## Conclusão
+
+Padding evita perda de informação nas bordas.  
+Stride controla a resolução da saída.  
+Juntos, eles determinam a dimensão dos feature maps e são fundamentais para projetar camadas convolucionais eficientes e profundas.
+
+
+
+
+
+<br><br>
+
+
+
+
+<a id="cnn_pooling"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
+
+=============================  
+Pooling e Downsampling  
+=============================
+
+Após a convolução, os feature maps ainda possuem alta resolução espacial.  
+Para reduzir essa resolução e tornar a rede mais robusta a pequenas variações de posição, CNNs utilizam **pooling**, também chamado de **downsampling**.
+
+Pooling não aprende pesos.  
+Ele aplica uma operação fixa em pequenas regiões do feature map, como:
+
+- máximo (max pooling),  
+- média (average pooling).
+
+O objetivo é **resumir** a informação espacial preservando apenas o que é mais relevante.
+
+---
+
+## 1. Max Pooling
+
+O max pooling é o tipo mais comum.  
+Dado um patch de tamanho $p \times p$, o pooling calcula:
+
+$$
+\max\{ Z[i,j] : (i,j) \in \text{patch} \}
+$$
+
+Ou seja:
+
+- pega os valores do patch,  
+- escolhe o maior,  
+- descarta os demais.
+
+Se o patch é $2 \times 2$, o pooling reduz quatro valores a apenas um.
+
+---
+
+## 2. Average Pooling
+
+O average pooling calcula a média dos valores do patch:
+
+$$
+\frac{1}{p^2} \sum_{(i,j) \in \text{patch}} Z[i,j]
+$$
+
+Ele é menos usado em CNNs modernas, mas aparece em algumas arquiteturas.
+
+---
+
+## 3. Stride no pooling
+
+Assim como na convolução, o pooling também usa stride:
+
+- **stride = 1** → janelas sobrepostas, saída maior  
+- **stride = 2** → janelas não sobrepostas, saída menor  
+
+Exemplo:
+
+- entrada: $32 \times 32$  
+- pooling $2 \times 2$ com stride 2  
+- saída: $16 \times 16$
+
+Pooling reduz a resolução espacial pela metade.
+
+---
+
+## 4. Efeito geométrico do pooling
+
+Pooling introduz **invariância a pequenas translações**:
+
+- se uma característica se move alguns pixels para a esquerda ou direita,  
+- o valor máximo dentro do patch permanece o mesmo,  
+- então a representação final não muda.
+
+Isso é essencial para classificação de imagens, onde a posição exata do objeto não importa.
+
+---
+
+## 5. Pooling não altera o número de canais
+
+Se o feature map tem dimensão:
+
+$$
+H \times W \times K
+$$
+
+após pooling, a saída terá:
+
+$$
+H' \times W' \times K
+$$
+
+Ou seja:
+
+- altura e largura diminuem,  
+- número de canais permanece igual.
+
+Cada canal é reduzido independentemente.
+
+---
+
+## 6. Pooling como forma de compressão
+
+Pooling reduz:
+
+- resolução espacial,  
+- custo computacional,  
+- número de parâmetros nas camadas seguintes.
+
+Ele também ajuda a evitar overfitting, pois força a rede a focar em padrões mais gerais.
+
+---
+
+## 7. Pensamento aplicado
+
+Pooling é essencial porque:
+
+1. **reduz dimensionalidade**,  
+2. **aumenta invariância espacial**,  
+3. **preserva apenas ativações fortes**,  
+4. **simplifica a representação**,  
+5. **permite arquiteturas profundas sem explosão de memória**.
+
+Sem pooling, CNNs seriam muito mais pesadas e menos robustas.
+
+---
+
+## Conclusão
+
+Pooling resume regiões dos feature maps, reduzindo resolução e aumentando invariância a pequenas translações.  
+Max pooling é o mais usado, pois preserva ativações fortes e ajuda a construir representações mais estáveis e compactas.
+
+
+
+
+<br><Br>
+
+
+
+
+<a id="cnn_arquiteturas"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
+
+=============================  
+Arquiteturas CNN (Filtros 3D, Camadas Empilhadas)  
+=============================
+
+Até agora vimos como filtros detectam padrões locais e como feature maps representam esses padrões.  
+Agora vamos entender como **camadas convolucionais são empilhadas**, como **filtros 3D combinam canais anteriores**, e como isso forma **arquiteturas profundas** capazes de reconhecer objetos complexos.
+
+Essa é a essência das CNNs modernas: **compor padrões simples em padrões cada vez mais abstratos**.
+
+---
+
+## 1. Filtros 3D: combinando vários canais
+
+Após a primeira convolução, a imagem deixa de ser RGB e passa a ter $K$ canais:
+
+$$
+X \in \mathbb{R}^{H \times W \times K}
+$$
+
+Se a próxima camada tem $M$ filtros, cada filtro deve ter profundidade igual ao número de canais:
+
+$$
+W^{(m)} \in \mathbb{R}^{h \times w \times K}
+$$
+
+Ou seja:
+
+- altura = $h$  
+- largura = $w$  
+- profundidade = número de canais da camada anterior  
+
+Cada filtro combina informações de **todos os canais anteriores**, permitindo detectar padrões mais complexos.
+
+---
+
+## 2. Camadas empilhadas
+
+Uma CNN típica empilha várias operações:
+
+```
+Conv → ReLU → Pool → Conv → ReLU → Conv → ReLU → Pool → ...
+```
+
+Cada camada:
+
+1. recebe um tensor $H \times W \times K$,  
+2. aplica filtros 3D,  
+3. produz um novo tensor $H' \times W' \times M$,  
+4. passa esse tensor para a próxima camada.
+
+Com o empilhamento:
+
+- as primeiras camadas detectam **bordas e texturas**,  
+- as intermediárias detectam **partes de objetos**,  
+- as profundas detectam **objetos inteiros**.
+
+---
+
+## 3. Exemplo real: AlexNet (2012)
+
+A Lecture 12 usa AlexNet como exemplo clássico.  
+Sua arquitetura inicial é:
+
+1. **Conv1**  
+   - 96 filtros  
+   - tamanho $11 \times 11 \times 3$  
+   - stride 4  
+   - saída: $55 \times 55 \times 96$
+
+2. **Pool1**  
+   - reduz para $27 \times 27 \times 96$
+
+3. **Conv2**  
+   - 256 filtros  
+   - tamanho $5 \times 5 \times 96$
+
+4. **Conv3, Conv4, Conv5**  
+   - filtros $3 \times 3$  
+   - profundidade igual ao número de canais anteriores  
+   - detectam partes complexas de objetos
+
+5. **Pool + Fully Connected + Softmax**
+
+Essa arquitetura inaugurou a era moderna das CNNs.
+
+---
+
+## 4. Por que empilhar camadas funciona?
+
+Porque cada camada aprende **transformações não lineares** que aumentam a abstração:
+
+- Camada 1: bordas  
+- Camada 2: cantos e curvas  
+- Camada 3: texturas e partes  
+- Camada 4: partes maiores  
+- Camada 5: objetos completos  
+
+A profundidade permite que a rede represente funções altamente complexas.
+
+---
+
+## 5. Normalização
+
+A Lecture 12 menciona **normalização local** (Local Response Normalization), usada em AlexNet.
+
+Hoje, arquiteturas modernas usam:
+
+- Batch Normalization  
+- Layer Normalization  
+- Group Normalization  
+
+Essas técnicas estabilizam o treinamento e aceleram a convergência.
+
+---
+
+## 6. Pensamento aplicado
+
+Arquiteturas CNN funcionam porque:
+
+1. **filtros 3D combinam canais anteriores**,  
+2. **camadas empilhadas constroem hierarquias de padrões**,  
+3. **pooling controla resolução e invariância**,  
+4. **normalização estabiliza o aprendizado**,  
+5. **fully connected + softmax finalizam a classificação**.
+
+Essa combinação permite que CNNs reconheçam objetos complexos em imagens reais.
+
+---
+
+## Conclusão
+
+Arquiteturas CNN são construídas empilhando camadas convolucionais com filtros 3D, seguidas de ativações, pooling e normalização.  
+Cada camada aprende padrões mais abstratos, formando uma hierarquia que culmina na classificação final.  
+Esse design modular é o que torna CNNs tão poderosas e eficientes.
+
+
+
+
+
+<br><br>
+
+
+
+
+<a id="cnn_hierarquia"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
+
+=============================  
+Hierarquia de Características  
+=============================
+
+Uma das propriedades mais importantes das CNNs é que elas aprendem **hierarquias de características**.  
+Isso significa que cada camada aprende padrões mais complexos do que a camada anterior.
+
+Essa hierarquia surge naturalmente da combinação de:
+
+- filtros 3D,  
+- conectividade local,  
+- pesos compartilhados,  
+- camadas empilhadas,  
+- ativações não lineares.
+
+É exatamente essa estrutura que permite que CNNs reconheçam objetos completos em imagens reais.
+
+---
+
+## 1. Camadas iniciais: características de baixo nível
+
+As primeiras camadas recebem a imagem bruta (RGB) e aprendem padrões simples:
+
+- bordas horizontais,  
+- bordas verticais,  
+- bordas diagonais,  
+- gradientes de cor,  
+- pequenas texturas.
+
+Esses padrões são universais — aparecem em praticamente todas as imagens.
+
+Os filtros dessas camadas geralmente parecem **pequenas imagens borradas** com linhas e cores.
+
+---
+
+## 2. Camadas intermediárias: características de nível médio
+
+À medida que avançamos na rede, os filtros passam a combinar vários canais anteriores.  
+Isso permite detectar padrões mais complexos, como:
+
+- cantos,  
+- curvas,  
+- interseções de bordas,  
+- texturas específicas,  
+- partes de objetos.
+
+Exemplos típicos:
+
+- parte de um olho,  
+- parte de uma roda,  
+- parte de uma folha,  
+- padrões repetitivos.
+
+Essas camadas começam a capturar **semântica parcial**.
+
+---
+
+## 3. Camadas profundas: características de alto nível
+
+Nas últimas camadas convolucionais, os filtros operam sobre dezenas ou centenas de canais.  
+Eles combinam partes aprendidas anteriormente para formar representações completas:
+
+- rosto de gato,  
+- formato de carro,  
+- cogumelo inteiro,  
+- estrutura de navio,  
+- padrões específicos de objetos.
+
+Essas camadas são altamente abstratas e específicas da tarefa.
+
+---
+
+## 4. Por que a hierarquia funciona?
+
+A hierarquia funciona porque cada camada:
+
+1. **recebe padrões da camada anterior**,  
+2. **combina esses padrões usando filtros 3D**,  
+3. **aplica uma não linearidade**,  
+4. **produz novos padrões mais complexos**.
+
+Isso cria uma composição de funções:
+
+$$
+x \to f^{(1)}(x) \to f^{(2)}(x) \to \dots \to f^{(L)}(x)
+$$
+
+Cada função $f^{(i)}$ aumenta o nível de abstração.
+
+---
+
+## 5. Relação com visão humana
+
+A Lecture 12 menciona que essa hierarquia é semelhante ao processamento visual humano:
+
+- neurônios do córtex visual primário detectam bordas,  
+- neurônios posteriores detectam formas,  
+- neurônios mais profundos detectam objetos.
+
+CNNs imitam essa estrutura de forma computacional.
+
+---
+
+## 6. Filtros aprendidos: evidência visual
+
+Quando visualizamos filtros de CNNs treinadas (como AlexNet), vemos:
+
+- **camada 1:** bordas e cores  
+- **camada 2:** cantos e texturas  
+- **camada 3:** partes de objetos  
+- **camada 4:** objetos completos  
+- **camada 5:** padrões altamente específicos da classe
+
+Nada disso é programado manualmente — tudo é aprendido via retropropagação.
+
+---
+
+## 7. Pensamento aplicado
+
+A hierarquia de características é essencial porque:
+
+1. **permite que CNNs generalizem bem**,  
+2. **reduz a necessidade de engenharia manual de features**,  
+3. **cria representações robustas**,  
+4. **facilita a classificação final**,  
+5. **explica o sucesso das CNNs em visão computacional**.
+
+Sem essa hierarquia, CNNs não conseguiriam reconhecer objetos complexos.
+
+---
+
+## Conclusão
+
+CNNs aprendem uma hierarquia de características:  
+bordas → partes → objetos.  
+Essa estrutura emerge naturalmente do empilhamento de camadas convolucionais e é o que torna CNNs tão poderosas para tarefas de visão computacional.
+
+
+
+
+<br><Br>
+
+
+
+
+<a id="cnn_classificacao"></a>
+[$\Uparrow$ Índice](#indice)  
+[$\uparrow$ Índice unit3](#unit3)
+
+=============================  
+CNNs para Classificação  
+=============================
+
+Depois de aprender filtros, feature maps, pooling e arquiteturas profundas, podemos finalmente entender como uma CNN completa realiza **classificação de imagens**.  
+O processo envolve transformar a imagem em uma representação cada vez mais abstrata até que ela possa ser classificada por uma camada totalmente conectada seguida de softmax.
+
+A pipeline completa é:
+
+```
+Imagem → Convoluções → ReLU → Pooling → Convoluções → ReLU → Pooling → Flatten → Fully Connected → Softmax
+```
+
+Cada etapa tem um papel específico na construção da representação final.
+
+---
+
+## 1. Entrada: imagem como tensor
+
+Uma imagem RGB é representada como:
+
+$$
+X \in \mathbb{R}^{H \times W \times 3}
+$$
+
+onde:
+
+- $H$ = altura,  
+- $W$ = largura,  
+- $3$ = canais (R, G, B).
+
+Essa é a entrada da CNN.
+
+---
+
+## 2. Camadas convolucionais: extração de padrões
+
+As primeiras camadas aplicam filtros 3D:
+
+$$
+W^{(k)} \in \mathbb{R}^{h \times w \times 3}
+$$
+
+produzindo feature maps:
+
+$$
+Z^{(k)} \in \mathbb{R}^{H' \times W'}
+$$
+
+Cada filtro detecta um padrão específico:
+
+- bordas,  
+- texturas,  
+- cores,  
+- pequenas formas.
+
+Com vários filtros, a saída se torna um tensor:
+
+$$
+\mathbb{R}^{H' \times W' \times K}
+$$
+
+onde $K$ é o número de canais.
+
+---
+
+## 3. Pooling: redução e invariância
+
+Pooling reduz a resolução espacial:
+
+- max pooling preserva ativações fortes,  
+- average pooling preserva médias.
+
+Se a entrada é:
+
+$$
+H \times W \times K
+$$
+
+a saída é:
+
+$$
+H' \times W' \times K
+$$
+
+Pooling torna a rede mais robusta a pequenas translações e reduz custo computacional.
+
+---
+
+## 4. Camadas profundas: composição de padrões
+
+Camadas posteriores aplicam filtros 3D sobre dezenas ou centenas de canais:
+
+$$
+W^{(m)} \in \mathbb{R}^{h \times w \times K}
+$$
+
+Isso permite detectar:
+
+- partes de objetos (olhos, rodas, folhas),  
+- combinações de partes,  
+- objetos completos.
+
+A representação se torna cada vez mais abstrata.
+
+---
+
+## 5. Flatten: transformação para vetor
+
+Após várias convoluções e poolings, o tensor final tem dimensão:
+
+$$
+H'' \times W'' \times C
+$$
+
+Para conectar essa representação a uma camada totalmente conectada, fazemos:
+
+$$
+\text{vec}(X) \in \mathbb{R}^{H'' W'' C}
+$$
+
+Esse vetor contém toda a informação extraída pela CNN.
+
+---
+
+## 6. Fully Connected: combinação global
+
+A camada totalmente conectada aplica:
+
+$$
+h = f(W_h \cdot \text{vec}(X) + b_h)
+$$
+
+Ela combina todas as características aprendidas para formar uma representação final da imagem.
+
+Essa camada funciona como um classificador linear sobre as features aprendidas.
+
+---
+
+## 7. Softmax: classificação final
+
+A última camada aplica:
+
+$$
+p = \text{softmax}(W_o h + b_o)
+$$
+
+onde:
+
+- $p$ é a distribuição de probabilidade sobre as classes,  
+- $p_j$ é a probabilidade da imagem pertencer à classe $j$.
+
+A predição final é:
+
+$$
+\hat{y} = \arg\max_j p_j
+$$
+
+---
+
+## 8. Pensamento aplicado
+
+CNNs são excelentes classificadores porque:
+
+1. **extraem padrões locais** (convolução),  
+2. **reduzem resolução e ruído** (pooling),  
+3. **combinam padrões simples em complexos** (filtros 3D),  
+4. **produzem representações abstratas** (camadas profundas),  
+5. **classificam com softmax** (fully connected + softmax).
+
+Essa pipeline é usada em:
+
+- reconhecimento de objetos,  
+- detecção de faces,  
+- classificação médica,  
+- visão robótica,  
+- sistemas autônomos.
+
+---
+
+## Conclusão
+
+CNNs classificam imagens transformando-as em representações profundas e abstratas por meio de convoluções, pooling e filtros 3D.  
+A etapa final — flatten + fully connected + softmax — realiza a classificação usando as características aprendidas ao longo da rede.
+
+
 
 
 
