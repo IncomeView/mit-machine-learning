@@ -6,7 +6,7 @@ indice notes.md
 <a id="unit1"></a>
 
 =====================================  
-Unit 1. | Linear Classifiers and Generalizations
+Unit 1. | Linear Classifiers and Generalizations  
 =====================================
 
 ### 1. Fundamentos do Aprendizado Supervisionado
